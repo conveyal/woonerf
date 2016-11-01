@@ -55,7 +55,7 @@ $ yarn add @conveyal/reboot
 
 MIT
 
-[npm-image]: https://img.shields.io/npm/v/@conveyal/reboot.svg?maxAge=2592000&style=flat-square
-[npm-url]: https://www.npmjs.com/package/@conveyal/reboot
-[travis-image]: https://img.shields.io/travis/conveyal/reboot.svg?style=flat-square
-[travis-url]: https://travis-ci.org/conveyal/reboot
+[npm-image]: https://img.shields.io/npm/v/@conveyal/woonerf.svg?maxAge=2592000&style=flat-square
+[npm-url]: https://www.npmjs.com/package/@conveyal/woonerf
+[travis-image]: https://img.shields.io/travis/conveyal/woonerf.svg?style=flat-square
+[travis-url]: https://travis-ci.org/conveyal/woonerf
