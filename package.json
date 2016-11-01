@@ -1,9 +1,9 @@
 {
-  "name": "@conveyal/reboot",
+  "name": "@conveyal/woonerf",
   "description": "React/Redux bootstrapping and common libs for Conveyal",
   "main": "./build/lib",
   "repository": {
-    "url": "https://github.com/conveyal/reboot",
+    "url": "https://github.com/conveyal/woonerf",
     "type": "git"
   },
   "scripts": {
