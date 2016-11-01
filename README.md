@@ -44,15 +44,11 @@ With [yarn](https://yarnpkg.com/) installed, run
 $ yarn add @conveyal/reboot
 ```
 
-## Acknowledgments
-
-@conveyal/reboot was inspired by..
-
 ## See Also
 
-- ['conveyal/mastarm'](https://github.com/conveyal/mastarm)
-- ['facebook/react'](https://github.com/facebook/react)
-- ['reactjs/redux'](https://github.com/reactjs/redux)
+- [conveyal/mastarm](https://github.com/conveyal/mastarm)
+- [facebook/react](https://github.com/facebook/react)
+- [reactjs/redux](https://github.com/reactjs/redux)
 
 ## License
 
