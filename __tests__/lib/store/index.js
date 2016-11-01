@@ -7,7 +7,6 @@ describe('store', () => {
     const createStore = require('../../../lib/store')
     const store = createStore({})
 
-    expect(store.env).toBe('development')
     expect(store.dispatch).toBeDefined()
     expect(store.getState).toBeDefined()
     expect(store.subscribe).toBeDefined()
@@ -19,7 +18,6 @@ describe('store', () => {
     const createStore = require('../../../lib/store')
     const store = createStore({})
 
-    expect(store.env).toBe('production')
     expect(store.dispatch).toBeDefined()
     expect(store.getState).toBeDefined()
     expect(store.subscribe).toBeDefined()
