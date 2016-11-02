@@ -1,0 +1,7 @@
+exports[`Icon should return an Icon element with a given type 1`] = `
+<Icon
+  type="woonerf">
+  <i
+    className="fa fa-woonerf fa-fw " />
+</Icon>
+`;

@@ -1,4 +1,4 @@
-# reboot
+# woonerf
 
 [![NPM version][npm-image]][npm-url]
 [![Build status][travis-image]][travis-url]
@@ -44,21 +44,18 @@ With [yarn](https://yarnpkg.com/) installed, run
 $ yarn add @conveyal/reboot
 ```
 
-## Acknowledgments
-
-@conveyal/reboot was inspired by..
-
 ## See Also
 
-- ['conveyal/mastarm'](https://github.com/conveyal/mastarm)
-- ['facebook/react'](https://github.com/facebook/react)
-- ['reactjs/redux'](https://github.com/reactjs/redux)
+- [conveyal/mastarm](https://github.com/conveyal/mastarm)
+- [facebook/react](https://github.com/facebook/react)
+- [reactjs/redux](https://github.com/reactjs/redux)
+- [woonerf](https://en.wikipedia.org/wiki/Woonerf)
 
 ## License
 
 MIT
 
-[npm-image]: https://img.shields.io/npm/v/@conveyal/reboot.svg?maxAge=2592000&style=flat-square
-[npm-url]: https://www.npmjs.com/package/@conveyal/reboot
-[travis-image]: https://img.shields.io/travis/conveyal/reboot.svg?style=flat-square
-[travis-url]: https://travis-ci.org/conveyal/reboot
+[npm-image]: https://img.shields.io/npm/v/@conveyal/woonerf.svg?maxAge=2592000&style=flat-square
+[npm-url]: https://www.npmjs.com/package/@conveyal/woonerf
+[travis-image]: https://img.shields.io/travis/conveyal/woonerf.svg?style=flat-square
+[travis-url]: https://travis-ci.org/conveyal/woonerf

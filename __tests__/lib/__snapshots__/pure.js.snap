@@ -1,0 +1,5 @@
+exports[`Pure should return an Pure element with a given type 1`] = `
+<PureTest>
+  <div />
+</PureTest>
+`;
