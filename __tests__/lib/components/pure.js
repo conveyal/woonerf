@@ -4,7 +4,7 @@ import React from 'react'
 import {mount} from 'enzyme'
 import {mountToJson} from 'enzyme-to-json'
 
-import {Pure} from '../../lib'
+import {Pure} from '../../../src'
 
 class PureTest extends Pure {}
 PureTest.prototype.render = jest.fn(() => <div />)

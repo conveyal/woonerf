@@ -1,9 +1,10 @@
 module.exports = {
   auth0: require('./auth0'),
+  Auth0Lock: require('./components/auth0-lock'),
   fetch: require('./fetch'),
   html: require('./html'),
-  Icon: require('./icon'),
+  Icon: require('./components/icon'),
   mount: require('./mount'),
-  Pure: require('./pure'),
+  Pure: require('./components/pure'),
   store: require('./store')
 }

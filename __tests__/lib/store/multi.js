@@ -1,6 +1,6 @@
 /* globals describe, expect, it, jest */
 
-import multi from '../../../lib/store/multi'
+import multi from '../../../src/store/multi'
 
 describe('store > multi', () => {
   it('should call dispatch on every action in the array', () => {

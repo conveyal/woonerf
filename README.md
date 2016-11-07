@@ -12,7 +12,7 @@ Modern JavaScript applications take a lot of bootstrapping. This library helps w
 Let's create a Redux application:
 
 ```js
-const {mount} = require('@conveyal/reboot')
+const mount = require('@conveyal/woonerf/mount')
 
 const Application = require('./containers/application')
 const reducers = require('./reducers')
@@ -30,6 +30,9 @@ This will create a redux store with the `fetch`, `history`, `logger`, `multi`, a
 
 ### `auth0`
 
+```js
+const
+
 ### `fetch({url, options, next})`
 
 ### `html({title})`
@@ -41,7 +44,7 @@ This will create a redux store with the `fetch`, `history`, `logger`, `multi`, a
 With [yarn](https://yarnpkg.com/) installed, run
 
 ```
-$ yarn add @conveyal/reboot
+$ yarn add @conveyal/woonerf
 ```
 
 ## See Also

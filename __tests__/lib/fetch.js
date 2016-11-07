@@ -2,8 +2,8 @@
 
 import isObject from 'lodash.isobject'
 
-import fetch from '../../lib/fetch'
-import createStore from '../../lib/store'
+import fetch from '../../src/fetch'
+import createStore from '../../src/store'
 
 const store = createStore()
 

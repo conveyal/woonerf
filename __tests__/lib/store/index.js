@@ -4,7 +4,7 @@ describe('store', () => {
   it('should create a development redux store with the reducers passed', () => {
     jest.resetModules()
     process.env.NODE_ENV = 'development'
-    const createStore = require('../../../lib/store')
+    const createStore = require('../../../src/store')
     const store = createStore({})
 
     expect(store.dispatch).toBeDefined()
@@ -15,7 +15,7 @@ describe('store', () => {
   it('should create a production redux store with the reducers passed', () => {
     jest.resetModules()
     process.env.NODE_ENV = 'production'
-    const createStore = require('../../../lib/store')
+    const createStore = require('../../../src/store')
     const store = createStore({})
 
     expect(store.dispatch).toBeDefined()
