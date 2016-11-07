@@ -13,12 +13,4 @@ describe('Pure', () => {
   it('should return an Pure element with a given type', () => {
     expect(mountToJson(mount(<PureTest />))).toMatchSnapshot()
   })
-
-  it.skip('TODO: should not re-render when the props have not changed', () => {
-
-  })
-
-  it.skip('TODO: should re-render when the props have changed', () => {
-
-  })
 })
