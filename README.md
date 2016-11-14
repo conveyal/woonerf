@@ -36,13 +36,13 @@ This will create a redux store with the `fetch`, `history`, `logger`, `multi`, a
 
 ```js
 const
+```
 
 ### `fetch({url, options, next})`
 
 ### `html({title})`
 
 ### `mount({app, id, reducers})`
-```
 
 ## Install
 
