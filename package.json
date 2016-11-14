@@ -8,6 +8,7 @@
   },
   "scripts": {
     "cover": "mastarm lint && NODE_ENV=test mastarm test --coverage --coverage-paths src",
+    "clean": "rm -r components store ./*.js ./*.js.map",
     "prepublish": "mastarm prepublish src --outdir ./",
     "test": "mastarm lint && NODE_ENV=test mastarm test",
     "semantic-release": "semantic-release pre && npm publish && semantic-release post"
