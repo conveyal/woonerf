@@ -4,7 +4,7 @@ import React, {Component, PropTypes} from 'react'
 import {mount} from 'enzyme'
 import {mountToJson} from 'enzyme-to-json'
 
-import {create} from '../../lib/mount'
+import {create} from '../../src/mount'
 
 class App extends Component {
   static propTypes = {

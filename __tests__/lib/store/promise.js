@@ -1,6 +1,6 @@
 /* globals describe, expect, it, jest */
 
-import promise from '../../../lib/store/promise'
+import promise from '../../../src/store/promise'
 
 describe('store > promise', () => {
   it('should call dispatch on the resolved value of a promise', async () => {

@@ -1,6 +1,6 @@
 /* globals describe, expect, it */
 
-import html from '../../lib/html'
+import html from '../../src/html'
 
 describe('html', () => {
   it('should return an HTML string with a given title', () => {
