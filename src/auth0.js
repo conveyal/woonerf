@@ -3,7 +3,8 @@ import Auth0Client from 'auth0-js'
 import {push} from 'react-router-redux'
 import {createAction} from 'redux-actions'
 
-const {AUTH0_CLIENT_ID, AUTH0_DOMAIN} = process.env
+const AUTH0_CLIENT_ID = process.env.AUTH0_CLIENT_ID
+const AUTH0_DOMAIN = process.env.AUTH0_DOMAIN
 const localStorage = window.localStorage
 
 export const setAuth0User = createAction('set auth0 user')
@@ -54,5 +55,7 @@ export function refreshUser (dispatch) {
     } else {
       dispatch(push('/login'))
     }
+  } else {
+    throw new Error('Auth0 credentials not found!')
   }
 }
