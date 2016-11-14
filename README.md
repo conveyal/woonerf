@@ -9,7 +9,7 @@ Modern JavaScript applications take a lot of bootstrapping. This library helps w
 
 ## Pronunciation
 
-"Woonerf" is a Dutch word for a small neighborhood street where vehicles must move very slowly. The kind of road you can imagine allowing kids to play in. Although it's fun to pronounce it as "woo nerf", the break is after the n (woon == living, erf == yard). A good transliteration for an American English speaker would be "Vone Airf". 
+"Woonerf" is a Dutch word for a small neighborhood street where vehicles must move very slowly. The kind of road you can imagine allowing kids to play in. Although it's fun to pronounce it as "woo nerf", the break is after the n (woon == living, erf == yard). A good transliteration for an American English speaker would be "Vone Airf".
 
 ## Usage
 
@@ -42,12 +42,13 @@ const
 ### `html({title})`
 
 ### `mount({app, id, reducers})`
+```
 
 ## Install
 
 With [yarn](https://yarnpkg.com/) installed, run
 
-```
+```sh
 $ yarn add @conveyal/woonerf
 ```
 
