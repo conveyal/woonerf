@@ -5,18 +5,25 @@ import {createAction} from 'redux-actions'
 export const INCREMENT_FETCH = 'increment outstanding fetches'
 export const DECREMENT_FETCH = 'decrement outstanding fetches'
 export const FETCH = 'fetch'
+export const FETCH_MULTIPLE = 'fetch multiple'
 export const FETCH_ERROR = 'fetch error'
 
 export const incrementFetches = createAction(INCREMENT_FETCH)
 export const decrementFetches = createAction(DECREMENT_FETCH)
-export const fetchError = createAction(FETCH_ERROR)
 export const fetchAction = createAction(FETCH)
+export const fetchMultiple = createAction(FETCH_MULTIPLE)
+export const fetchError = createAction(FETCH_ERROR)
 
 export function middleware (store) {
-  return (next) => (action) =>
-    action.type === FETCH
-      ? store.dispatch(incrementFetches()) && store.dispatch(runFetch(action.payload, store.getState()))
-      : next(action)
+  return (next) => (action) => {
+    if (action.type === FETCH) {
+      return store.dispatch(runFetchAction(action.payload, store.getState()))
+    } else if (action.type === FETCH_MULTIPLE) {
+      return store.dispatch(runFetchMultiple(action.payload, store.getState()))
+    } else {
+      return next(action)
+    }
+  }
 }
 
 export default fetchAction
@@ -28,8 +35,8 @@ export default fetchAction
  */
 
 function runFetch ({
-  next,
   options = {},
+  retry = false,
   url
 }, state) {
   const isJSON = isObject(options.body)
@@ -44,10 +51,44 @@ function runFetch ({
   })
     .then(checkStatus)
     .then(createResponse)
-    .then((response) => [decrementFetches(), next(response)])
-    .catch((error) =>
-      createErrorResponse(error)
-        .then((response) => [decrementFetches(), fetchError(response), next(response, true)]))
+    .then(async (response) =>
+      (retry && await retry(response))
+        ? runFetch({options, retry, url}, state)
+        : response)
+}
+
+function runFetchAction ({
+  next,
+  options = {},
+  retry = false,
+  url
+}, state) {
+  return [
+    incrementFetches(),
+    runFetch({options, retry, url}, state)
+      .then((response) => [decrementFetches(), next(null, response)])
+      .catch((error) =>
+        createErrorResponse(error)
+          .then((response) => [decrementFetches(), fetchError(response), next(error, response)]))
+  ]
+}
+
+/**
+ * @returns Promise
+ */
+
+function runFetchMultiple ({
+  fetches,
+  next
+}, state) {
+  return [
+    incrementFetches(),
+    Promise.all(fetches.map((fetch) => runFetch(fetch, state)))
+      .then((responses) => [decrementFetches(), next(null, responses)])
+      .catch((error) =>
+        createErrorResponse(error)
+          .then((response) => [decrementFetches(), fetchError(response), next(error, response)]))
+  ]
 }
 
 function createAuthorizationHeader (state) {
@@ -76,21 +117,18 @@ function createErrorResponse (res) {
     : Promise.resolve(res)
 }
 
-async function createResponse (res) {
-  try {
-    const value = await deserialize(res)
-    return {
+function createResponse (res) {
+  return deserialize(res)
+    .then((value) => ({
       url: res.url,
       status: res.status,
       statusText: res.statusText,
       headers: res.headers,
       value
-    }
-  } catch (err) {
-    return {
+    }))
+    .catch((err) => ({
       value: err
-    }
-  }
+    }))
 }
 
 function deserialize (res) {
