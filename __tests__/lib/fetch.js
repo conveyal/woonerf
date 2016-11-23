@@ -1,6 +1,5 @@
 /* globals describe, expect, it, jasmine */
 
-import isObject from 'lodash.isobject'
 import nock from 'nock'
 
 import fetch, {fetchMultiple} from '../../src/fetch'
@@ -29,14 +28,36 @@ describe('fetch', () => {
       .reply(200, {})
 
     const action = fetch({
-      url: 'https://autocomplete.clearbit.com/v1/companies/suggest?query=stripe',
+      url: 'http://google.com',
       options: {
         headers: {
           'Accept': 'application/json'
         }
       },
       next: (error, response) => {
-        expect(isObject(response.value)).toBeTruthy()
+        expect(response.value).toEqual({})
+        done(error)
+      }
+    })
+    store.dispatch(action)
+  })
+
+  it('should automatically parse json responses with approximate header match', (done) => {
+    nock('http://google.com')
+      .get('/')
+      .reply(200,
+        JSON.stringify({ hi: 'there' }),
+        { 'Content-Type': 'application/json; charset=utf-8' })
+
+    const action = fetch({
+      url: 'http://google.com',
+      options: {
+        headers: {
+          'Accept': 'application/json'
+        }
+      },
+      next: (error, response) => {
+        expect(response.value).toEqual({ hi: 'there' })
         done(error)
       }
     })

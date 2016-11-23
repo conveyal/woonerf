@@ -133,8 +133,10 @@ function createResponse (res) {
 
 function deserialize (res) {
   const header = [res.headers.get('Content-Type'), res.headers.get('Content')].filter(Boolean)
-  if (header.indexOf('application/json') > -1) return res.json()
-  if (header.indexOf('application/ld+json') > -1) return res.json()
-  if (header.indexOf('application/octet-stream') > -1) return res.arrayBuffer()
+  for (let i = 0; i < header.length; i++) {
+    if (header[i].indexOf('application/json') > -1) return res.json()
+    if (header[i].indexOf('application/ld+json') > -1) return res.json()
+    if (header[i].indexOf('application/octet-stream') > -1) return res.arrayBuffer()
+  }
   return res.text()
 }
