@@ -38,7 +38,56 @@ This will create a redux store with the `fetch`, `history`, `logger`, `multi`, a
 const
 ```
 
-### `fetch({url, options, next})`
+### `fetch({url, options, next, retry})`
+
+Create a fetch action to be dispatched by the store. Key features:
+
+* Automatically `JSON.stringify` bodies that are objects and automatically `JSON.parse` responses that are `application/json`.
+* `next` is a function that's result will be dispatched by the store. It can be an `async` function.
+* `retry` is a function that receives the response and needs to resolve to a Boolean. It can be an `async` function.
+
+```js
+const fetch = require('@conveyal/woonerf/fetch')
+
+store.dispatch(fetch({
+  url: 'http://conveyal.com',
+  options: {
+    method: 'post',
+    body: {hello: 'world'}
+  },
+  retry: async (response) => {
+    if (response.status !== 200) {
+      await timeout(2000)
+      return true
+    } else {
+      return false
+    }
+  },
+  next: async (error, response) => {
+    return actionBasedOn(response)
+  }
+}))
+```
+
+### `fetchMultiple({fetches, next})`
+
+Allows you to dispatch a single action that will call next with all of the responses.
+
+```js
+const {fetchMultiple} = require('@conveyal/woonerf/fetch')
+
+store.dispatch(fetchMultiple({
+  fetches: [
+    url: 'http://conveyal.com',
+    options: {
+      body: {hello: 'world'}
+    }
+  ],
+  next: async (error, responses) => {
+    return actionBasedOn(response)
+  }
+}))
+```
 
 ### `html({title})`
 

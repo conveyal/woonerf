@@ -78,9 +78,9 @@ describe('fetch', () => {
     const action = fetch({
       url: 'http://conveyal.com',
       retry: (response) => response.status !== 200,
-      next: () => {
+      next: (error) => {
         expect(triedOnce).toBeTruthy()
-        done()
+        done(error)
       }
     })
 
@@ -111,9 +111,9 @@ describe('fetch', () => {
           }
         })
       },
-      next: () => {
+      next: (error) => {
         expect(triedOnce).toBeTruthy()
-        done()
+        done(error)
       }
     })
 
