@@ -132,7 +132,7 @@ function createResponse (res) {
 }
 
 function deserialize (res) {
-  const header = [res.headers.get('Content-Type'), res.headers.get('Content')].filter(Boolean)
+  const header = `${res.headers.get('Content-Type')} ${res.headers.get('Content')}`
   if (header.indexOf('application/json') > -1) return res.json()
   if (header.indexOf('application/ld+json') > -1) return res.json()
   if (header.indexOf('application/octet-stream') > -1) return res.arrayBuffer()

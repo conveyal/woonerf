@@ -1,14 +1,11 @@
-/* globals describe, expect, it, jasmine */
+/* globals describe, expect, it */
 
-import isObject from 'lodash.isobject'
 import nock from 'nock'
 
 import fetch, {fetchMultiple} from '../../src/fetch'
 import createStore from '../../src/store'
 
 const store = createStore()
-
-jasmine.DEFAULT_TIMEOUT_INTERVAL *= 5
 
 describe('fetch', () => {
   it('should dispatch a fetch action and call next', (done) => {
@@ -26,20 +23,16 @@ describe('fetch', () => {
   it('should automatically parse json responses', (done) => {
     nock('http://google.com')
       .get('/')
-      .reply(200, {})
+      .reply(200, {hello: 'world'})
 
     const action = fetch({
-      url: 'https://autocomplete.clearbit.com/v1/companies/suggest?query=stripe',
-      options: {
-        headers: {
-          'Accept': 'application/json'
-        }
-      },
+      url: 'http://google.com',
       next: (error, response) => {
-        expect(isObject(response.value)).toBeTruthy()
+        expect(response.value).toEqual({hello: 'world'})
         done(error)
       }
     })
+
     store.dispatch(action)
   })
 
@@ -63,6 +56,64 @@ describe('fetch', () => {
         expect(responses[0].value).toBe('one')
         expect(responses[1].value).toBe('two')
         done(error)
+      }
+    })
+
+    store.dispatch(action)
+  })
+
+  it('should retry based on the response', (done) => {
+    let triedOnce = false
+    nock('http://conveyal.com')
+      .get('/')
+      .reply((uri, body) => {
+        if (triedOnce) {
+          return [200]
+        } else {
+          triedOnce = true
+          return [202]
+        }
+      })
+
+    const action = fetch({
+      url: 'http://conveyal.com',
+      retry: (response) => response.status !== 200,
+      next: () => {
+        expect(triedOnce).toBeTruthy()
+        done()
+      }
+    })
+
+    store.dispatch(action)
+  })
+
+  it('should allow retrying with an async function', (done) => {
+    let triedOnce = false
+    nock('http://conveyal.com')
+      .get('/')
+      .reply((uri, body) => {
+        if (triedOnce) {
+          return [200]
+        } else {
+          triedOnce = true
+          return [202]
+        }
+      })
+
+    const action = fetch({
+      url: 'http://conveyal.com',
+      retry: (response) => {
+        return new Promise((resolve, reject) => {
+          if (response.status !== 200) {
+            setTimeout(() => resolve(true), 10)
+          } else {
+            resolve(false)
+          }
+        })
+      },
+      next: () => {
+        expect(triedOnce).toBeTruthy()
+        done()
       }
     })
 
