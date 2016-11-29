@@ -77,12 +77,12 @@ Allows you to dispatch a single action that will call next with all of the respo
 const {fetchMultiple} = require('@conveyal/woonerf/fetch')
 
 store.dispatch(fetchMultiple({
-  fetches: [
+  fetches: [{
     url: 'http://conveyal.com',
     options: {
       body: {hello: 'world'}
     }
-  ],
+  }],
   next: async (error, responses) => {
     return actionBasedOn(response)
   }
