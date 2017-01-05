@@ -5,7 +5,6 @@ import {createAction} from 'redux-actions'
 
 const AUTH0_CLIENT_ID = process.env.AUTH0_CLIENT_ID
 const AUTH0_DOMAIN = process.env.AUTH0_DOMAIN
-const localStorage = window.localStorage
 
 export const setAuth0User = createAction('set auth0 user')
 export const authIsRequired = AUTH0_CLIENT_ID && AUTH0_DOMAIN
@@ -23,7 +22,8 @@ export const lock = authIsRequired
       autoclose: true
     })
   : null
-export const client = authIsRequired
+export const getLock = (lockOptions) => new Auth0Lock(AUTH0_CLIENT_ID, AUTH0_DOMAIN, lockOptions)
+export const client = (authIsRequired || process.env.NODE_ENV === 'test')
   ? new Auth0Client({
     clientID: AUTH0_CLIENT_ID,
     domain: AUTH0_DOMAIN
@@ -33,8 +33,9 @@ export const client = authIsRequired
 /**
  * Use on application mount when authentication is required
  */
-export function refreshUser (dispatch) {
-  if (authIsRequired) {
+export function refreshUser (dispatch, overrideAuthIsRequired) {
+  const localStorage = window.localStorage
+  if (authIsRequired || overrideAuthIsRequired) {
     const userString = localStorage.getItem('user')
     const user = userString && JSON.parse(userString)
     if (user && user.refreshToken) {
