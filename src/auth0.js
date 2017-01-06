@@ -5,36 +5,32 @@ import {createAction} from 'redux-actions'
 
 const AUTH0_CLIENT_ID = process.env.AUTH0_CLIENT_ID
 const AUTH0_DOMAIN = process.env.AUTH0_DOMAIN
-const localStorage = window.localStorage
 
 export const setAuth0User = createAction('set auth0 user')
 export const authIsRequired = AUTH0_CLIENT_ID && AUTH0_DOMAIN
-export const lock = authIsRequired
-  ? new Auth0Lock(
-    AUTH0_CLIENT_ID,
-    AUTH0_DOMAIN, {
-      auth: {
-        params: {
-          scope: 'openid analyst offline_access'
-        },
-        redirect: false
-      },
-      closeable: false,
-      autoclose: true
-    })
-  : null
-export const client = authIsRequired
-  ? new Auth0Client({
-    clientID: AUTH0_CLIENT_ID,
-    domain: AUTH0_DOMAIN
-  })
-  : null
+export const defaultLockOptions = {
+  auth: {
+    params: {
+      scope: 'openid analyst offline_access'
+    },
+    redirect: false
+  },
+  closeable: false,
+  autoclose: true
+}
+export const getLock = (lockOptions) => new Auth0Lock(AUTH0_CLIENT_ID, AUTH0_DOMAIN, lockOptions)
+export const getClient = () => new Auth0Client({
+  clientID: AUTH0_CLIENT_ID,
+  domain: AUTH0_DOMAIN
+})
 
 /**
  * Use on application mount when authentication is required
  */
-export function refreshUser (dispatch) {
-  if (authIsRequired) {
+export function refreshUser (dispatch, overrideAuthIsRequired) {
+  const localStorage = window.localStorage
+  if (authIsRequired || overrideAuthIsRequired) {
+    const client = getClient()
     const userString = localStorage.getItem('user')
     const user = userString && JSON.parse(userString)
     if (user && user.refreshToken) {
