@@ -7,6 +7,20 @@
 
 Modern JavaScript applications take a lot of bootstrapping. This library helps with some common libs to include and use on the client to help.
 
+## Table of Contents
+
+* [Pronunciation](#pronuncation)
+* [Usage](#usage)
+* [API](#api)
+  * [Auth0](#auth0)
+  * [fetch](#fetch)
+  * [fetchMultiple](#fetchmultiple)
+  * [html](#html)
+  * [mount](#mount)
+* [Install](#install)
+* [See Also](#see-also)
+* [License](#license)
+
 ## Pronunciation
 
 "Woonerf" is a Dutch word for a small neighborhood street where vehicles must move very slowly. The kind of road you can imagine allowing kids to play in. Although it's fun to pronounce it as "woo nerf", the break is after the n (woon == living, erf == yard). A good transliteration for an American English speaker would be "Vone Airf".
@@ -32,13 +46,48 @@ This will create a redux store with the `fetch`, `history`, `logger`, `multi`, a
 
 ## API
 
-### `auth0`
+### auth0
+
+#### Login Component
+
+Create a simple login component with custom Auth0-lock options.
 
 ```js
-const
+import Auth0 from '@conveyal/woonerf/components/auth0-lock'
+
+export default function Login () {
+  const lockOptions = {}
+  return (
+    <Auth0
+      lockOptions={lockOptions}
+      />
+  )
+}
 ```
 
-### `fetch({url, options, next, retry})`
+#### Authentication helpers
+
+##### refreshUser
+
+Refresh a user.  To be used within a redux connected component.  Will send update actions to a redux store based on response from Auth0.
+
+```js
+import {refreshUser} from '@conveyal/woonerf/auth0'
+
+...
+
+function mapDispatchToProps (dispatch) {
+  return {
+    refreshUserToken: () => refreshUser(dispatch)
+  }
+}
+
+...
+```
+
+### fetch
+
+`fetch({url, options, next, retry})`
 
 Create a fetch action to be dispatched by the store. Key features:
 
@@ -69,7 +118,9 @@ store.dispatch(fetch({
 }))
 ```
 
-### `fetchMultiple({fetches, next})`
+### fetchMultiple
+
+`fetchMultiple({fetches, next})`
 
 Allows you to dispatch a single action that will call next with all of the responses.
 
@@ -89,9 +140,13 @@ store.dispatch(fetchMultiple({
 }))
 ```
 
-### `html({title})`
+### html
 
-### `mount({app, id, reducers})`
+`html({title})`
+
+### mount
+
+`mount({app, id, reducers})`
 
 ## Install
 
