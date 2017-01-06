@@ -7,32 +7,19 @@ import configureStore from 'redux-mock-store'
 
 import Auth0 from '../../../src/components/auth0-lock'
 
-function getProfile (token, callback) {
-  if (token === 'ok-token') {
-    callback(null, { profileData: 'blah' })
-  } else {
-    callback('error')
-  }
-}
-
 describe('auth0-lock', () => {
   it('should show lock and handle successful authentication', () => {
     window.localStorage = {
       setItem: () => null
     }
 
-    const lock = {
-      getProfile: getProfile,
-      on: (evt, callback) => callback({ idToken: 'ok-token' }),
-      show: () => null
-    }
     const mockStore = configureStore()({})
 
     // mount component
     renderer.create(
       <Provider store={mockStore}>
         <Auth0
-          lock={lock}
+          lockOptions={{ fakeAuthenticatedToken: 'ok-token' }}
           />
       </Provider>
     )
@@ -45,18 +32,13 @@ describe('auth0-lock', () => {
       setItem: () => null
     }
 
-    const lock = {
-      getProfile: getProfile,
-      on: (evt, callback) => callback({ idToken: 'not-ok-token' }),
-      show: () => null
-    }
     const mockStore = configureStore()({})
 
     // mount component
     renderer.create(
       <Provider store={mockStore}>
         <Auth0
-          lock={lock}
+          lockOptions={{ fakeAuthenticatedToken: 'bad-token' }}
           />
       </Provider>
     )

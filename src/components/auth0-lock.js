@@ -2,41 +2,36 @@ import {PropTypes} from 'react'
 import {connect} from 'react-redux'
 import {push} from 'react-router-redux'
 
-import {lock as defaultLock, setAuth0User} from '../auth0'
+import {defaultLockOptions, getLock, setAuth0User} from '../auth0'
 import Pure from './pure'
 
 class Auth0 extends Pure {
   static propTypes = {
-    lock: PropTypes.object.isRequired,
+    lockOptions: PropTypes.object,
     push: PropTypes.func.isRequired,
     setAuth0User: PropTypes.func.isRequired
   }
 
-  _authenticated = (authResult) => {
-    const {lock, push, setAuth0User} = this.props
-    lock.getProfile(authResult.idToken, (error, profile) => {
-      if (error) {
-        setAuth0User(null)
-        push('/login')
-      } else {
-        const user = {
-          ...authResult,
-          profile
-        }
-        window.localStorage.setItem('user', JSON.stringify(user))
-        setAuth0User(user)
-        push('/')
-      }
-    })
-  }
-
   componentDidMount () {
-    // when testing, auth0 credentials are not currently entered, so `lock` will be null
-    const {lock} = this.props
-    if (lock) {
-      lock.show()
-      lock.on('authenticated', this._authenticated)
-    }
+    const {lockOptions, push, setAuth0User} = this.props
+    const lock = getLock(lockOptions)
+    lock.show()
+    lock.on('authenticated', (authResult) => {
+      lock.getProfile(authResult.idToken, (error, profile) => {
+        if (error) {
+          setAuth0User(null)
+          push('/login')
+        } else {
+          const user = {
+            ...authResult,
+            profile
+          }
+          window.localStorage.setItem('user', JSON.stringify(user))
+          setAuth0User(user)
+          push('/')
+        }
+      })
+    })
   }
 
   render () {
@@ -46,7 +41,7 @@ class Auth0 extends Pure {
 
 function mapStateToProps (state, props) {
   return {
-    lock: props.lock ? props.lock : defaultLock
+    lockOptions: props.lockOptions || defaultLockOptions
   }
 }
 const mapDispatchToProps = {

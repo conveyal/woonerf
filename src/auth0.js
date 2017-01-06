@@ -8,27 +8,21 @@ const AUTH0_DOMAIN = process.env.AUTH0_DOMAIN
 
 export const setAuth0User = createAction('set auth0 user')
 export const authIsRequired = AUTH0_CLIENT_ID && AUTH0_DOMAIN
-export const lock = authIsRequired
-  ? new Auth0Lock(
-    AUTH0_CLIENT_ID,
-    AUTH0_DOMAIN, {
-      auth: {
-        params: {
-          scope: 'openid analyst offline_access'
-        },
-        redirect: false
-      },
-      closeable: false,
-      autoclose: true
-    })
-  : null
+export const defaultLockOptions = {
+  auth: {
+    params: {
+      scope: 'openid analyst offline_access'
+    },
+    redirect: false
+  },
+  closeable: false,
+  autoclose: true
+}
 export const getLock = (lockOptions) => new Auth0Lock(AUTH0_CLIENT_ID, AUTH0_DOMAIN, lockOptions)
-export const client = (authIsRequired || process.env.NODE_ENV === 'test')
-  ? new Auth0Client({
-    clientID: AUTH0_CLIENT_ID,
-    domain: AUTH0_DOMAIN
-  })
-  : null
+export const getClient = () => new Auth0Client({
+  clientID: AUTH0_CLIENT_ID,
+  domain: AUTH0_DOMAIN
+})
 
 /**
  * Use on application mount when authentication is required
@@ -36,6 +30,7 @@ export const client = (authIsRequired || process.env.NODE_ENV === 'test')
 export function refreshUser (dispatch, overrideAuthIsRequired) {
   const localStorage = window.localStorage
   if (authIsRequired || overrideAuthIsRequired) {
+    const client = getClient()
     const userString = localStorage.getItem('user')
     const user = userString && JSON.parse(userString)
     if (user && user.refreshToken) {
