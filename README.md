@@ -50,7 +50,7 @@ This will create a redux store with the `fetch`, `history`, `logger`, `multi`, a
 
 #### Login Component
 
-Create a simple login component with custom Auth0-lock options.
+Create a simple login component with custom [Auth0-lock options](https://auth0.com/docs/libraries/lock/v10/customization).
 
 ```js
 import Auth0 from '@conveyal/woonerf/components/auth0-lock'

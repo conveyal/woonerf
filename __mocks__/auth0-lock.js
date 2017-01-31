@@ -10,6 +10,8 @@ Auth0Lock.prototype.getProfile = function (token, callback) {
   }
 }
 
+Auth0Lock.prototype.hide = function () {}
+
 Auth0Lock.prototype.on = function (event, callback) {
   callback({ idToken: this.options.fakeAuthenticatedToken })
 }

@@ -17,6 +17,7 @@ class Auth0 extends Pure {
     const lock = getLock(lockOptions)
     lock.show()
     lock.on('authenticated', (authResult) => {
+      lock.hide()
       lock.getProfile(authResult.idToken, (error, profile) => {
         if (error) {
           setAuth0User(null)
