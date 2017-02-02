@@ -42,7 +42,7 @@ mount({
 })
 ```
 
-This will create a redux store with the `fetch`, `history`, `logger`, `multi`, and `promise` middleware applied, wrap your application with a redux provider, initialize the browser history, and mount your component to `#id`.
+This will create a redux store with the `fetch`, `history`, `logger`, `multi`, and `promise` middleware applied, wrap your application with a redux provider, initialize the browser history, and mount your component to `#id`. The component passed as `app` will be passed `history` from [react-router-redux](https://github.com/reactjs/react-router-redux) and the initialized redux `store` as props.
 
 ## API
 
