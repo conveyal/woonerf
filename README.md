@@ -144,9 +144,7 @@ store.dispatch(fetchMultiple({
 
 `html({title})`
 
-### mount
-
-`mount({app, id, reducers})`
+Used for creating the default HTML needed to use a woonerf application.
 
 ## Install
 
