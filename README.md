@@ -16,7 +16,6 @@ Modern JavaScript applications take a lot of bootstrapping. This library helps w
   * [fetch](#fetch)
   * [fetchMultiple](#fetchmultiple)
   * [html](#html)
-  * [mount](#mount)
 * [Install](#install)
 * [See Also](#see-also)
 * [License](#license)
