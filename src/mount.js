@@ -18,7 +18,7 @@ export function create ({
   const store = createStore(reducers)
   const history = syncHistoryWithStore(browserHistory, store)
   return React.createElement(Provider, {store},
-    React.createElement(app, {history}))
+    React.createElement(app, {history, store}))
 }
 
 export default function mount ({
