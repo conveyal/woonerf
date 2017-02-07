@@ -39,13 +39,12 @@ function runFetch ({
   retry = false,
   url
 }, state) {
-  const isJSON = isObject(options.body)
   return fetch(url, {
     ...options,
-    body: isJSON ? JSON.stringify(options.body) : options.body,
+    body: serialize(options.body),
     headers: {
       ...createAuthorizationHeader(state),
-      ...createContentHeader(isJSON),
+      ...createContentHeader(options.body),
       ...(options.headers || {})
     }
   })
@@ -105,10 +104,14 @@ function checkStatus (res) {
   }
 }
 
-function createContentHeader (isJSON) {
-  return isJSON
-    ? {'Accept': 'application/json', 'Content-Type': 'application/json;charset=UTF-8'}
-    : {}
+function createContentHeader (body) {
+  if (body instanceof window.FormData) {
+    return {}
+  } else if (isObject(body)) {
+    return {'Accept': 'application/json', 'Content-Type': 'application/json;charset=UTF-8'}
+  } else {
+    return {}
+  }
 }
 
 function createErrorResponse (res) {
@@ -137,4 +140,14 @@ function deserialize (res) {
   if (header.indexOf('application/ld+json') > -1) return res.json()
   if (header.indexOf('application/octet-stream') > -1) return res.arrayBuffer()
   return res.text()
+}
+
+function serialize (body) {
+  if (body instanceof window.FormData) {
+    return body
+  } else if (isObject(body)) {
+    return JSON.stringify(body)
+  } else {
+    return body
+  }
 }
