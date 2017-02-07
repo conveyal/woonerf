@@ -20,6 +20,53 @@ describe('fetch', () => {
     store.dispatch(action)
   })
 
+  it('should automatically serialize json bodies', (done) => {
+    const body = {
+      data: 'important'
+    }
+
+    nock('http://google.com')
+      .post('/', body)
+      .reply(200, 'good')
+
+    const action = fetch({
+      url: 'http://google.com',
+      options: {
+        method: 'post',
+        body
+      },
+      next: (error, response) => {
+        expect(response.value).toEqual('good')
+        done(error)
+      }
+    })
+
+    store.dispatch(action)
+  })
+
+  it('should work with FormData', (done) => {
+    const data = new window.FormData()
+    data.append('name', 'world')
+
+    nock('http://google.com')
+      .post('/')
+      .reply(200, 'FormData')
+
+    const action = fetch({
+      url: 'http://google.com',
+      options: {
+        method: 'post',
+        body: data
+      },
+      next: (error, response) => {
+        expect(response.value).toEqual('FormData')
+        done(error)
+      }
+    })
+
+    store.dispatch(action)
+  })
+
   it('should automatically parse json responses', (done) => {
     nock('http://google.com')
       .get('/')
