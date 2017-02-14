@@ -141,9 +141,12 @@ store.dispatch(fetchMultiple({
 
 ### html
 
-`html({title})`
+`html({staticHost, title})`
 
-Used for creating the default HTML needed to use a woonerf application.
+Used for creating the default HTML needed to use a woonerf application.  Accepts the following parameters:
+
+* `staticHost`: (optional) The host server of the static files.  This gets prepended to an expected assets folder for the static files.  The files loaded will be: `${staticHost}assets/favicon.ico`, `${staticHost}assets/index.css` and `${staticHost}assets/index.js`.  If omitted, the host path will be an empty string.
+* `title`: The string to insert into the `title` tag.
 
 ## Install
 
