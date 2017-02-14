@@ -34,7 +34,7 @@ export default fetchAction
  * @returns Promise
  */
 
-function runFetch ({
+export function runFetch ({
   options = {},
   retry = false,
   url
@@ -57,7 +57,7 @@ function runFetch ({
         : response)
 }
 
-function runFetchAction ({
+export function runFetchAction ({
   next,
   options = {},
   retry = false,
@@ -77,7 +77,7 @@ function runFetchAction ({
  * @returns Promise
  */
 
-function runFetchMultiple ({
+export function runFetchMultiple ({
   fetches,
   next
 }, state) {
