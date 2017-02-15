@@ -11,7 +11,7 @@ describe('html', () => {
   })
 
   it('should return an HTML string with a given staticHost', () => {
-    const staticHost = 'https://fakeHost.com/'
+    const staticHost = 'https://fakehost.com/'
     const title = 'Unique Title'
     const str = html({staticHost, title})
     expect(str.indexOf(staticHost) !== -1).toBeTruthy()
