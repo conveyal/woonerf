@@ -34,7 +34,7 @@ export default fetchAction
  * @returns Promise
  */
 
-function runFetch ({
+export function runFetch ({
   options = {},
   retry = false,
   url
@@ -56,19 +56,19 @@ function runFetch ({
         : response)
 }
 
-function runFetchAction ({
+export function runFetchAction ({
   next,
   options = {},
   retry = false,
   url
 }, state) {
   return [
-    incrementFetches(),
+    incrementFetches({options, url}),
     runFetch({options, retry, url}, state)
-      .then((response) => [decrementFetches(), next(null, response)])
+      .then((response) => [decrementFetches({options, url}), next(null, response)])
       .catch((error) =>
         createErrorResponse(error)
-          .then((response) => [decrementFetches(), fetchError(response), next(error, response)]))
+          .then((response) => [decrementFetches({options, url}), fetchError(response), next(error, response)]))
   ]
 }
 
@@ -76,17 +76,24 @@ function runFetchAction ({
  * @returns Promise
  */
 
-function runFetchMultiple ({
+export function runFetchMultiple ({
   fetches,
   next
 }, state) {
   return [
-    incrementFetches(),
+    ...fetches.map(({options, url}) => incrementFetches({options, url})),
     Promise.all(fetches.map((fetch) => runFetch(fetch, state)))
-      .then((responses) => [decrementFetches(), next(null, responses)])
+      .then((responses) => [
+        ...fetches.map(({options, url}) => decrementFetches({options, url})),
+        next(null, responses)
+      ])
       .catch((error) =>
         createErrorResponse(error)
-          .then((response) => [decrementFetches(), fetchError(response), next(error, response)]))
+          .then((response) => [
+            ...fetches.map(({options, url}) => decrementFetches({options, url})),
+            fetchError(response),
+            next(error, response)
+          ]))
   ]
 }
 
