@@ -1,3 +1,5 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
 exports[`mount should mount the react application to root 1`] = `
 <Provider
   store={
@@ -8,7 +10,8 @@ exports[`mount should mount the react application to root 1`] = `
       "subscribe": [Function],
       Symbol(observable): [Function],
     }
-  }>
+  }
+>
   <App
     history={
       Object {
@@ -36,7 +39,8 @@ exports[`mount should mount the react application to root 1`] = `
         "subscribe": [Function],
         Symbol(observable): [Function],
       }
-    }>
+    }
+  >
     <div />
   </App>
 </Provider>
