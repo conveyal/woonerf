@@ -1,7 +1,11 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
 exports[`Icon should return an Icon element with a given type 1`] = `
 <Icon
-  type="woonerf">
+  type="woonerf"
+>
   <i
-    className="fa fa-woonerf fa-fw " />
+    className="fa fa-woonerf fa-fw "
+  />
 </Icon>
 `;

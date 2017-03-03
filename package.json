@@ -32,7 +32,7 @@
   "devDependencies": {
     "enzyme": "^2.7.1",
     "enzyme-to-json": "^1.4.5",
-    "mastarm": "^3.4.0",
+    "mastarm": "^3.5.1",
     "nock": "^9.0.2",
     "react": "^15.4.2",
     "react-addons-test-utils": "^15.4.2",

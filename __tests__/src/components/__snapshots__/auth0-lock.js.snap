@@ -1,3 +1,5 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
 exports[`auth0-lock should show lock and handle successful authentication 1`] = `
 Array [
   Object {
