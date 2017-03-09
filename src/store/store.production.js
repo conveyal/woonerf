@@ -13,10 +13,10 @@ export default function configureStore (rootReducer, initialState) {
     initialState,
     applyMiddleware(
       routerMiddleware(browserHistory),
-      thunkMiddleware,
       fetch,
       multi,
-      promise
+      promise,
+      thunkMiddleware
     )
   )
 }

@@ -22,8 +22,8 @@ export default function configureStore (rootReducer, initialState) {
       fetch,
       multi,
       promise,
-      logger,
-      thunkMiddleware
+      thunkMiddleware,
+      logger
     )
   )
 }
