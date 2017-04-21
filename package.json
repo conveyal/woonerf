@@ -8,7 +8,7 @@
   },
   "scripts": {
     "cover": "mastarm lint && mastarm test -e test --coverage --coverage-paths \"src/**/*.js\"",
-    "clean": "rm -r components store ./*.js ./*.js.map",
+    "clean": "rm -r actions components reducers store ./*.js ./*.js.map",
     "prepublish": "mastarm prepublish src --outdir ./",
     "test": "mastarm lint && mastarm test -e test",
     "semantic-release": "semantic-release pre && npm publish && semantic-release post"
@@ -26,14 +26,14 @@
     "react-router": "^3.0.2",
     "react-router-redux": "^4.0.7",
     "redux": "^3.6.0",
-    "redux-actions": "^1.2.1",
-    "redux-logger": "^2.7.4",
+    "redux-actions": "^2.0.2",
+    "redux-logger": "^3.0.1",
     "redux-thunk": "^2.2.0"
   },
   "devDependencies": {
     "enzyme": "^2.7.1",
     "enzyme-to-json": "^1.4.5",
-    "mastarm": "^3.5.1",
+    "mastarm": "^3.8.0",
     "nock": "^9.0.2",
     "react": "^15.4.2",
     "react-addons-test-utils": "^15.4.2",

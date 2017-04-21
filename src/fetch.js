@@ -1,10 +1,10 @@
 /* globals fetch */
 
+import isObject from 'lodash.isobject'
+import {createAction} from 'redux-actions'
 if (typeof (fetch) === 'undefined') {
   require('isomorphic-fetch')
 }
-import isObject from 'lodash.isobject'
-import {createAction} from 'redux-actions'
 
 export const INCREMENT_FETCH = 'increment outstanding fetches'
 export const DECREMENT_FETCH = 'decrement outstanding fetches'

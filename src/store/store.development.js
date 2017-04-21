@@ -1,7 +1,7 @@
 import {browserHistory} from 'react-router'
 import {routerMiddleware} from 'react-router-redux'
 import {applyMiddleware, createStore} from 'redux'
-import createLogger from 'redux-logger'
+import {createLogger} from 'redux-logger'
 import thunkMiddleware from 'redux-thunk'
 
 import {middleware as fetch} from '../fetch'
