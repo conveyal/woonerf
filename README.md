@@ -93,6 +93,9 @@ Create a fetch action to be dispatched by the store. Key features:
 * Automatically `JSON.stringify` bodies that are objects and automatically `JSON.parse` responses that are `application/json`.
 * `next` is a function that's result will be dispatched by the store. It can be an `async` function.
 * `retry` is a function that receives the response and needs to resolve to a Boolean. It can be an `async` function.
+* `Authorization`, `Content-Type` and `Accept` headers are added automatically (if you want to make a request
+   without one of these headers, for instance suppressing the Authorization header when calling a
+   remote service, simply set it to null in the `headers` field of `options`).
 
 ```js
 const fetch = require('@conveyal/woonerf/fetch')
