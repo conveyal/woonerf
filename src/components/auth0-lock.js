@@ -2,7 +2,8 @@ import {PropTypes} from 'react'
 import {connect} from 'react-redux'
 import {push} from 'react-router-redux'
 
-import {defaultLockOptions, getLock, setAuth0User} from '../auth0'
+import {setAuth0User} from '../actions/user'
+import {defaultLockOptions, getLock} from '../auth0'
 import Pure from './pure'
 
 class Auth0 extends Pure {
