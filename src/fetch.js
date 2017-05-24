@@ -43,14 +43,24 @@ export function runFetch ({
   retry = false,
   url
 }, state) {
+  const headers = {
+    ...createAuthorizationHeader(state),
+    ...createContentHeader(options.body),
+    ...(options.headers || {})
+  }
+
+  const filteredHeaders = {}
+
+  // allow removing generated headers by specifiying { header: null } in options.headers
+  // do this in two steps because otherwise we're modifying the object as we're iterating over it
+  Object.keys(headers)
+    .filter(key => headers[key] !== null && headers[key] !== undefined)
+    .forEach(key => { filteredHeaders[key] = headers[key] })
+
   return fetch(url, {
     ...options,
     body: serialize(options.body),
-    headers: {
-      ...createAuthorizationHeader(state),
-      ...createContentHeader(options.body),
-      ...(options.headers || {})
-    }
+    headers: filteredHeaders
   })
     .then(checkStatus)
     .then(createResponse)
