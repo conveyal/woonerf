@@ -17,6 +17,10 @@ export const reducers = {
   }
 }
 
+const localStorageAvailable = typeof window !== 'undefined' &&
+  typeof window.localStorage !== 'undefined' &&
+  typeof window.localStorage.getItem === 'function'
+
 export const initialState = {
-  ...JSON.parse(typeof window === 'undefined' ? '{}' : window.localStorage.getItem('user'))
+  ...JSON.parse(localStorageAvailable ? window.localStorage.getItem('user') : '{}')
 }
