@@ -1,7 +1,7 @@
 /* globals fetch */
 
 import isObject from 'lodash.isobject'
-import {createAction} from 'redux-actions'
+import createAction from 'redux-actions/es/createAction'
 if (typeof (fetch) === 'undefined') {
   require('isomorphic-fetch')
 }
