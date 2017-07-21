@@ -25,7 +25,7 @@ describe('message', () => {
     expect(message(DEFAULT_MESSAGE, 'one')).toBe('hello world')
   })
 
-  it('should look up the defined message properly using lodash/get', () => {
+  it('should look up the defined message properly on a nested object', () => {
     expect(message(DEFAULT_MESSAGE, 'three.four')).toBe('wat')
   })
 

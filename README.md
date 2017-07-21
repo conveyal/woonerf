@@ -154,18 +154,19 @@ Used for creating the default HTML needed to use a woonerf application.  Accepts
 
 ### message
 
-`message(defaultMessage, ?key, ...args)`
+`message(defaultMessage, key, ...args)`
 
-Pass in a default message, an optional key, and optional arguments that will get passed to [`sprintf`](https://github.com/alexei/sprintf.js). If no key is passed then a key is created by passing the message to [`lodash/kebabCase`](https://lodash.com/docs/#kebabCase) It auto-parses `process.env.MESSAGES` brought in by [`mastarm`](https://github.com/conveyal/mastarm) and allows you to set your own messages directly with `setMessages`.
+Pass in a default message, a key (which can be null), and optional arguments that will get passed to [`sprintf`](https://github.com/alexei/sprintf.js). If no key is passed then a key is created by passing the message to [`lodash/kebabCase`](https://lodash.com/docs/#kebabCase) It auto-parses `process.env.MESSAGES` brought in by [`mastarm`](https://github.com/conveyal/mastarm) and allows you to set your own messages directly with `setMessages`. Message lookup is done with [`lodash/get`](https://lodash.com/docs/#get) for nested objects.
 
 ```js
 import message, {setMessages} from '@conveyal/woonerf/message'
 
-setMessages({one:'hello world', two:'hola %s', 's-l-u-g-g-e-d': 'cool'})
+setMessages({one:'hello world', two:'hola %s', three: {four: 'wat'}, 's-l-u-g-g-e-d': 'cool'})
 
 message('default message') // 'default message'
-message('default message', 'slug-doesnt-exist') // 'default message'
+message('default message', 'key-doesnt-exist') // 'default message'
 message('default message', 'one') // 'hello world'
+message('default message', 'three.four') // 'wat'
 message('s-l$U/g*g.e d') // 'cool'
 message('hello %(world)s', null, {world: 'bob'}) // 'hello bob'
 message('hello %s', 'two', 'bob') // 'hola bob'
