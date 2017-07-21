@@ -1,5 +1,6 @@
 // @flow
 import debug from 'debug'
+import get from 'lodash/get'
 import kebabCase from 'lodash/kebabCase'
 import {sprintf} from 'sprintf-js'
 
@@ -12,7 +13,7 @@ if (process.env.MESSAGES) {
 
 export default function getMessage (defaultMessage: string, slug: void | string, ...args): string {
   const key = slug || kebabCase(defaultMessage)
-  const msg = messages[key] || defaultMessage
+  const msg = get(messages, key, defaultMessage)
   const result = args ? sprintf(msg, ...args) : msg
   dbg(key, result)
   return result
