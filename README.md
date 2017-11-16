@@ -98,6 +98,14 @@ Create a fetch action to be dispatched by the store. Key features:
    without one of these headers, for instance suppressing the Authorization header when calling a
    remote service, simply set it to null in the `headers` field of `options`).
 
+#### fetch errors
+
+The arity of `next` determines how errors are handled.
+
+1. When no `next` is present, a `fetchError` action is dispatched.
+2. When a `next` function with arity < 2 is present, then on error `fetchError` is dispatched and `next` is not called.
+3. When `next` has an arity >= 2 then errors are passed to `next` and `fetchError` is *not* dispatched.
+
 ```js
 const fetch = require('@conveyal/woonerf/fetch')
 

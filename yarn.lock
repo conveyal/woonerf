@@ -5766,9 +5766,9 @@ redux-logger@^3.0.6:
   dependencies:
     deep-diff "^0.3.5"
 
-redux-mock-store@^1.2.3:
-  version "1.2.3"
-  resolved "https://registry.yarnpkg.com/redux-mock-store/-/redux-mock-store-1.2.3.tgz#1b3ad299da91cb41ba30d68e3b6f024475fb9e1b"
+redux-mock-store@^1.3.0:
+  version "1.3.0"
+  resolved "https://registry.yarnpkg.com/redux-mock-store/-/redux-mock-store-1.3.0.tgz#6edfef0d2332f20576381069d6d889a6d0a4451c"
 
 redux-thunk@^2.2.0:
   version "2.2.0"
@@ -6271,10 +6271,6 @@ split@0.3:
 sprintf-js@~1.0.2:
   version "1.0.3"
   resolved "https://registry.yarnpkg.com/sprintf-js/-/sprintf-js-1.0.3.tgz#04e6926f662895354f3dd015203633b857297e2c"
-
-sprintf.js@^0.1.4:
-  version "0.1.4"
-  resolved "https://registry.yarnpkg.com/sprintf.js/-/sprintf.js-0.1.4.tgz#14dc5fb1c1de399d4edc2efc46774e5b140e11eb"
 
 sshpk@^1.7.0:
   version "1.10.2"
