@@ -16,7 +16,9 @@ export function create ({
   reducers
 }) {
   const store = createStore(reducers)
-  const history = syncHistoryWithStore(browserHistory, store)
+  const history = process.env.NODE_ENV !== 'test'
+    ? syncHistoryWithStore(browserHistory, store)
+    : {}
   return React.createElement(Provider, {store},
     React.createElement(app, {history, store}))
 }

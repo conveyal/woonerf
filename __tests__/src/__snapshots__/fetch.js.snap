@@ -1,0 +1,51 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`fetch should dispatch a fetchError if the arity of \`next\` is < 2 1`] = `
+Array [
+  Object {
+    "payload": Object {
+      "options": Object {},
+      "url": "http://fakeurl.com",
+    },
+    "type": "increment outstanding fetches",
+  },
+  Object {
+    "payload": Object {
+      "options": Object {},
+      "url": "http://fakeurl.com",
+    },
+    "type": "decrement outstanding fetches",
+  },
+  Object {
+    "payload": Object {
+      "headers": Headers {
+        "_headers": Object {},
+      },
+      "status": 400,
+      "statusText": "Bad Request",
+      "url": "http://fakeurl.com",
+      "value": "ERROR",
+    },
+    "type": "fetch error",
+  },
+]
+`;
+
+exports[`fetch should not dispatch a fetchError if the arity of \`next\` is >= 2 1`] = `
+Array [
+  Object {
+    "payload": Object {
+      "options": Object {},
+      "url": "http://fakeurl.com",
+    },
+    "type": "increment outstanding fetches",
+  },
+  Object {
+    "payload": Object {
+      "options": Object {},
+      "url": "http://fakeurl.com",
+    },
+    "type": "decrement outstanding fetches",
+  },
+]
+`;
