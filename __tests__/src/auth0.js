@@ -1,5 +1,4 @@
-/* globals describe, it */
-
+// @flow
 import {getLock} from '../../src/auth0'
 
 describe('auth0', () => {

@@ -1,5 +1,4 @@
-/* globals describe, expect, it */
-
+// @flow
 import html from '../../src/html'
 
 describe('html', () => {

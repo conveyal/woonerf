@@ -27,8 +27,7 @@
     "redux": "^3.7.2",
     "redux-actions": "^2.2.1",
     "redux-logger": "^3.0.6",
-    "redux-thunk": "^2.2.0",
-    "sprintf.js": "^0.1.4"
+    "redux-thunk": "^2.2.0"
   },
   "devDependencies": {
     "enzyme": "^2.9.1",
