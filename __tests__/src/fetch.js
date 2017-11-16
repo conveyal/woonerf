@@ -1,5 +1,4 @@
-/* globals describe, expect, it */
-
+// @flow
 import nock from 'nock'
 
 import fetch, {fetchMultiple} from '../../src/fetch'

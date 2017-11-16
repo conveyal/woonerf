@@ -16,6 +16,7 @@ Modern JavaScript applications take a lot of bootstrapping. This library helps w
   * [fetch](#fetch)
   * [fetchMultiple](#fetchmultiple)
   * [html](#html)
+  * [message](#message)
 * [Install](#install)
 * [See Also](#see-also)
 * [License](#license)
@@ -150,6 +151,25 @@ Used for creating the default HTML needed to use a woonerf application.  Accepts
 
 * `staticHost`: (optional) The host server of the static files.  This gets prepended to an expected assets folder for the static files.  The files loaded will be: `${staticHost}assets/favicon.ico`, `${staticHost}assets/index.css` and `${staticHost}assets/index.js`.  If omitted, the host path will be an empty string.
 * `title`: The string to insert into the `title` tag.
+
+### message
+
+`message(key, defaultMessage, parameters)`
+
+Pass a key, an optional default message, and an optional parameters object that will replace corresponding `%(key)`. It auto-parses `process.env.MESSAGES` brought in by [`mastarm`](https://github.com/conveyal/mastarm) and allows you to set your own messages directly with `setMessages`. Message lookup is done with [`lodash/get`](https://lodash.com/docs/#get) for nested objects.
+
+```js
+import message, {setMessages} from '@conveyal/woonerf/message'
+
+setMessages({one:'hello world', two:'hola %(s)', three: {four: 'wat'}})
+
+message('key.doesnt.exist', 'default message') // 'default message'
+message('one', 'default message') // 'hello world'
+message('three.four', 'default message') // 'wat'
+message('fake.key', 'hello %(world)s', {world: 'bob'}) // 'hello bob'
+message('two', 'hello %(s)', {s: 'bob'}) // 'hola bob'
+message('fake.key', 'hello %(a) %(b)', {a: 'bob', b: 'tim'}) // 'hello bob tim'
+```
 
 ## Install
 
