@@ -1,4 +1,4 @@
-import isEqual from 'lodash.isequal'
+import isEqual from 'lodash/isEqual'
 import {Component} from 'react'
 
 export default class Pure extends Component {

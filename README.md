@@ -16,6 +16,7 @@ Modern JavaScript applications take a lot of bootstrapping. This library helps w
   * [fetch](#fetch)
   * [fetchMultiple](#fetchmultiple)
   * [html](#html)
+  * [message](#message)
 * [Install](#install)
 * [See Also](#see-also)
 * [License](#license)
@@ -97,6 +98,14 @@ Create a fetch action to be dispatched by the store. Key features:
    without one of these headers, for instance suppressing the Authorization header when calling a
    remote service, simply set it to null in the `headers` field of `options`).
 
+#### fetch errors
+
+The arity of `next` determines how errors are handled.
+
+1. When no `next` is present, a `fetchError` action is dispatched.
+2. When a `next` function with arity < 2 is present, then on error `fetchError` is dispatched and `next` is not called.
+3. When `next` has an arity >= 2 then errors are passed to `next` and `fetchError` is *not* dispatched.
+
 ```js
 const fetch = require('@conveyal/woonerf/fetch')
 
@@ -150,6 +159,25 @@ Used for creating the default HTML needed to use a woonerf application.  Accepts
 
 * `staticHost`: (optional) The host server of the static files.  This gets prepended to an expected assets folder for the static files.  The files loaded will be: `${staticHost}assets/favicon.ico`, `${staticHost}assets/index.css` and `${staticHost}assets/index.js`.  If omitted, the host path will be an empty string.
 * `title`: The string to insert into the `title` tag.
+
+### message
+
+`message(key, defaultMessage, parameters)`
+
+Pass a key, an optional default message, and an optional parameters object that will replace corresponding `%(key)`. It auto-parses `process.env.MESSAGES` brought in by [`mastarm`](https://github.com/conveyal/mastarm) and allows you to set your own messages directly with `setMessages`. Message lookup is done with [`lodash/get`](https://lodash.com/docs/#get) for nested objects.
+
+```js
+import message, {setMessages} from '@conveyal/woonerf/message'
+
+setMessages({one:'hello world', two:'hola %(s)', three: {four: 'wat'}})
+
+message('key.doesnt.exist', 'default message') // 'default message'
+message('one', 'default message') // 'hello world'
+message('three.four', 'default message') // 'wat'
+message('fake.key', 'hello %(world)s', {world: 'bob'}) // 'hello bob'
+message('two', 'hello %(s)', {s: 'bob'}) // 'hola bob'
+message('fake.key', 'hello %(a) %(b)', {a: 'bob', b: 'tim'}) // 'hello bob tim'
+```
 
 ## Install
 

@@ -1,5 +1,4 @@
-/* globals describe, it, expect */
-
+// @flow
 import React, {Component, PropTypes} from 'react'
 import {mount} from 'enzyme'
 import {mountToJson} from 'enzyme-to-json'

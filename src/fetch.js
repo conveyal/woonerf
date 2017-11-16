@@ -1,7 +1,6 @@
-/* globals fetch */
-
-import isObject from 'lodash.isobject'
-import {createAction} from 'redux-actions'
+// @flow
+import isObject from 'lodash/isObject'
+import createAction from 'redux-actions/lib/createAction'
 if (typeof (fetch) === 'undefined') {
   require('isomorphic-fetch')
 }
@@ -37,7 +36,6 @@ export default fetchAction
  *
  * @returns Promise
  */
-
 export function runFetch ({
   options = {},
   retry = false,
@@ -76,38 +74,47 @@ export function runFetchAction ({
   retry = false,
   url
 }, state) {
+  const dispatchFetchError = !next || next.length < 2
+  const wrappedNext = wrapNext(next)
+
   return [
     incrementFetches({options, url}),
     runFetch({options, retry, url}, state)
-      .then((response) => [decrementFetches({options, url}), next(null, response)])
+      .then((response) => [decrementFetches({options, url}), wrappedNext(null, response)])
       .catch((error) =>
         createErrorResponse(error)
-          .then((response) => [decrementFetches({options, url}), fetchError(response), next(error, response)]))
+          .then((response) => {
+            const actions = [decrementFetches({options, url}), wrappedNext(error, response)]
+            if (dispatchFetchError) actions.push(fetchError(response))
+            return actions
+          }))
   ]
 }
 
 /**
  * @returns Promise
  */
-
 export function runFetchMultiple ({
   fetches,
   next
 }, state) {
+  const dispatchFetchError = !next || next.length < 2
+  const wrappedNext = wrapNext(next)
+
   return [
     ...fetches.map(({options, url}) => incrementFetches({options, url})),
     Promise.all(fetches.map((fetch) => runFetch(fetch, state)))
       .then((responses) => [
         ...fetches.map(({options, url}) => decrementFetches({options, url})),
-        next(null, responses)
+        wrappedNext(null, responses)
       ])
       .catch((error) =>
         createErrorResponse(error)
-          .then((response) => [
-            ...fetches.map(({options, url}) => decrementFetches({options, url})),
-            fetchError(response),
-            next(error, response)
-          ]))
+          .then((response) => {
+            const actions = fetches.map(({options, url}) => decrementFetches({options, url}))
+            if (dispatchFetchError) actions.push(fetchError(response))
+            return [...actions, wrappedNext(error, response)]
+          }))
   ]
 }
 
@@ -170,5 +177,17 @@ function serialize (body) {
     return JSON.stringify(body)
   } else {
     return body
+  }
+}
+
+function wrapNext (next) {
+  return function (error, response) {
+    if (next) {
+      if (next.length > 1) {
+        return next(error, response)
+      } else if (!error) {
+        return next(response)
+      }
+    }
   }
 }
