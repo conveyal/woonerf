@@ -7,11 +7,11 @@
     "type": "git"
   },
   "scripts": {
-    "cover": "yarn test -- --coverage --coverage-paths \"src/**/*.js\"",
+    "cover": "mastarm test --env test --coverage --coverage-paths \"src/**/*.js\"",
     "clean": "rm -r actions components reducers store ./*.js ./*.js.map",
     "prepublish": "mastarm prepublish src --outdir ./",
     "pretest": "yarn && yarn clean",
-    "test": "mastarm lint && mastarm test -e test",
+    "test": "mastarm lint && mastarm test --env test",
     "semantic-release": "semantic-release pre && npm publish && semantic-release post"
   },
   "author": "Trevor Gerhardt <trevorgerhardt@gmail.com>",
