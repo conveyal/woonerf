@@ -5,6 +5,11 @@ import get from 'lodash/get'
 const dbg = debug('woonerf:message')
 
 /**
+ * Expose a Set of all the keys used
+ */
+export const KeysUsed = new Set()
+
+/**
  * Set the messages object
  */
 export function setMessages (newMessages) {
@@ -28,6 +33,10 @@ export default function getMessage (key: string, defaultMessage?: string | Objec
     defaultMessage = ''
   }
 
+  // Store the used key
+  KeysUsed.add(key)
+
+  // Get the message with "lodash/get" to allow nested keys ('noun.action' => {noun: {action: 'value'}})
   const msg = get(messages, key, defaultMessage)
   const result = parameters ? replaceMessage(msg, parameters) : msg
   dbg(key, result)
