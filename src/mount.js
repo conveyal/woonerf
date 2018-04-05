@@ -6,11 +6,6 @@ import {syncHistoryWithStore} from 'react-router-redux'
 
 import createStore from './store'
 
-if (process.env.NODE_ENV === 'development') {
-  const Perf = window.Perf = require('react-addons-perf')
-  Perf.start()
-}
-
 export function create ({
   app,
   reducers
