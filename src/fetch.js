@@ -1,6 +1,5 @@
 // @flow
 import isObject from 'lodash/isObject'
-import createAction from 'redux-actions/lib/createAction'
 if (typeof (fetch) === 'undefined') {
   require('isomorphic-fetch')
 }
@@ -10,6 +9,8 @@ export const DECREMENT_FETCH = 'decrement outstanding fetches'
 export const FETCH = 'fetch'
 export const FETCH_MULTIPLE = 'fetch multiple'
 export const FETCH_ERROR = 'fetch error'
+
+const createAction = (type) => (payload) => ({type, payload})
 
 export const incrementFetches = createAction(INCREMENT_FETCH)
 export const decrementFetches = createAction(DECREMENT_FETCH)
@@ -151,23 +152,20 @@ function createErrorResponse (res) {
 function createResponse (res) {
   return deserialize(res)
     .then((value) => ({
-      url: res.url,
-      status: res.status,
-      statusText: res.statusText,
-      headers: res.headers,
+      ...res,
       value
     }))
     .catch((err) => ({
+      ...res,
       value: err
     }))
 }
 
 function deserialize (res) {
   const header = `${res.headers.get('Content-Type')} ${res.headers.get('Content')}`
-  if (header.indexOf('application/json') > -1) return res.json()
-  if (header.indexOf('application/ld+json') > -1) return res.json()
-  if (header.indexOf('application/octet-stream') > -1) return res.arrayBuffer()
-  return res.text()
+  if (header.indexOf('json') > -1) return res.json()
+  if (header.indexOf('octet-stream') > -1) return res.arrayBuffer()
+  if (header.indexOf('text') > -1) return res.text()
 }
 
 function serialize (body) {
