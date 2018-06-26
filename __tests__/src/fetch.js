@@ -31,7 +31,10 @@ describe('fetch', () => {
 
     nock(URL)
       .post('/', body)
-      .reply(200, 'good')
+      .reply(200, (path, requestBody) => {
+        expect(requestBody === JSON.stringify(body)).toBeTruthy()
+        return 'good'
+      })
 
     const action = fetch({
       url: URL,
@@ -39,9 +42,11 @@ describe('fetch', () => {
         method: 'post',
         body
       },
-      next: (error, response) => {
-        expect(response.value).toEqual('good')
-        done(error)
+      next (response) {
+        response.text().then(value => {
+          expect(value).toEqual('good')
+          done()
+        })
       }
     })
 
@@ -64,8 +69,10 @@ describe('fetch', () => {
         body: data
       },
       next: (error, response) => {
-        expect(response.value).toEqual('FormData')
-        done(error)
+        response.text().then(value => {
+          expect(value).toEqual('FormData')
+          done(error)
+        })
       }
     })
 
@@ -93,11 +100,11 @@ describe('fetch', () => {
     const store = createStore()
     nock(URL)
       .get('/one')
-      .reply(200, 'one')
+      .reply(200, 'one', {'Content-Type': 'text/plain'})
 
     nock(URL)
       .get('/two')
-      .reply(200, 'two')
+      .reply(200, 'two', {'Content-Type': 'text/plain'})
 
     const action = fetchMultiple({
       fetches: [{
