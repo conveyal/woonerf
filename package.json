@@ -13,7 +13,7 @@
     "prepublish": "mastarm prepublish src --outdir ./",
     "pretest": "yarn && yarn clean",
     "test": "mastarm lint src/ && mastarm test --env test",
-    "semantic-release": "semantic-release pre && npm publish && semantic-release post"
+    "semantic-release": "semantic-release"
   },
   "author": "Trevor Gerhardt <trevorgerhardt@gmail.com>",
   "license": "MIT",
