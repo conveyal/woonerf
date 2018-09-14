@@ -4,6 +4,7 @@ import {applyMiddleware, createStore} from 'redux'
 import thunkMiddleware from 'redux-thunk'
 
 import {middleware as fetch} from '../fetch'
+
 import multi from './multi'
 import promise from './promise'
 

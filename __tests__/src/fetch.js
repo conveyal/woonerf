@@ -16,7 +16,7 @@ describe('fetch', () => {
 
     const action = fetch({
       url: URL,
-      next: done
+      next: (err, res) => done(err, res)
     })
 
     store.dispatch(action)
@@ -140,7 +140,7 @@ describe('fetch', () => {
     const action = fetch({
       url: URL,
       retry: (response) => response.status !== 200,
-      next: (error) => {
+      next: (error, response) => {
         expect(triedOnce).toBeTruthy()
         done(error)
       }
@@ -174,7 +174,7 @@ describe('fetch', () => {
           }
         })
       },
-      next: (error) => {
+      next: (error, response) => {
         expect(triedOnce).toBeTruthy()
         done(error)
       }
