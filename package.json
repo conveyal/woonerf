@@ -9,6 +9,7 @@
   "scripts": {
     "cover": "mastarm test --env test --coverage --coverage-paths \"src/**/*.js\"",
     "clean": "rm -r components reducers store ./*.js ./*.js.map",
+    "jest": "mastarm test --env test",
     "lint": "mastarm lint src",
     "prepublish": "mastarm prepublish src --outdir ./",
     "pretest": "yarn && yarn clean",

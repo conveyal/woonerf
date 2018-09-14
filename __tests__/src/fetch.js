@@ -198,7 +198,7 @@ describe('fetch', () => {
 
     const actionResult = store.dispatch(action)
     await actionResult[1]
-    expect(store.getActions()).toMatchSnapshot() // with fetch error action
+    expect(store.getActions()).toHaveLength(3) // inc, dec, and fetch error
   })
 
   it('should not dispatch a fetchError if the arity of `next` is >= 2', (done) => {
