@@ -6,6 +6,11 @@ import {syncHistoryWithStore} from 'react-router-redux'
 
 import createStore from './store'
 
+if (process.env.LOGROCKET) {
+  const LogRocket = require('logrocket')
+  LogRocket.init(process.env.LOGROCKET)
+}
+
 export function create ({
   app,
   reducers

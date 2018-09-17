@@ -14,17 +14,24 @@ const logger = createLogger({
   duration: true
 })
 
+const middlewares = [
+  routerMiddleware(browserHistory),
+  fetch,
+  multi,
+  promise,
+  thunkMiddleware,
+  logger
+]
+
+if (process.env.LOGROCKET) {
+  const LogRocket = require('logrocket')
+  middlewares.push(LogRocket.reduxMiddleware())
+}
+
 export default function configureStore (rootReducer, initialState) {
   return createStore(
     rootReducer,
     initialState,
-    applyMiddleware(
-      routerMiddleware(browserHistory),
-      fetch,
-      multi,
-      promise,
-      thunkMiddleware,
-      logger
-    )
+    applyMiddleware(...middlewares)
   )
 }
