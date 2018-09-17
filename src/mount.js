@@ -8,9 +8,7 @@ import createStore from './store'
 
 if (process.env.LOGROCKET) {
   const LogRocket = require('logrocket')
-  const setupLogRocketReact = require('logrocket-react')
   LogRocket.init(process.env.LOGROCKET)
-  setupLogRocketReact(LogRocket)
 }
 
 export function create ({
