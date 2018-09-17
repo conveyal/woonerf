@@ -5,6 +5,6 @@ function isPromise (val) {
 export default function promiseMiddleware ({dispatch}) {
   return (next) => (action) =>
     isPromise(action)
-        ? action.then(dispatch)
-        : next(action)
+      ? action.then(dispatch)
+      : next(action)
 }

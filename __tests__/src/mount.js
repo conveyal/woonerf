@@ -1,15 +1,11 @@
 // @flow
-import React, {Component, PropTypes} from 'react'
+import React, {Component} from 'react'
 import {mount} from 'enzyme'
 import {mountToJson} from 'enzyme-to-json'
 
 import {create} from '../../src/mount'
 
 class App extends Component {
-  static propTypes = {
-    history: PropTypes.object.isRequired
-  }
-
   render () {
     return <div />
   }

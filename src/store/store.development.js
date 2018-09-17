@@ -5,6 +5,7 @@ import {createLogger} from 'redux-logger'
 import thunkMiddleware from 'redux-thunk'
 
 import {middleware as fetch} from '../fetch'
+
 import multi from './multi'
 import promise from './promise'
 

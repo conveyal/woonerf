@@ -45,7 +45,7 @@ export default function getMessage (key: string, defaultMessage?: string | Objec
 
 function replaceMessage (msg, data) {
   return msg.replace(
-    new RegExp('%\\((' + Object.keys(data).join('|') + ')\\)', 'g'), 
+    new RegExp('%\\((' + Object.keys(data).join('|') + ')\\)', 'g'),
     (m, key) => data.hasOwnProperty(key) ? data[key] : m
   )
 }
