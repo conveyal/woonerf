@@ -4,26 +4,79 @@ if (typeof (fetch) === 'undefined') {
   require('isomorphic-fetch')
 }
 
+// ID that gets incremented for each fetch
+let FETCH_ID = 0
+
+// Get's the next fetch ID, which can be passed in to `fetch`, and allows for tracking the fetch or cancelling it.
+export const getID = () => ++FETCH_ID
+
+// Active fetches, can still be cancelled
+const activeFetches = []
+
+// Remove a fetch from the active array
+const removeFetch = (_id) => {
+  activeFetches.splice(activeFetches.indexOf(_id), 1)
+}
+
+// Check if a fetch is still active
+const isActive = (_id) => activeFetches.includes(_id)
+
+// Action types
+export const CANCELLED_FETCH = 'cancelled fetch'
 export const INCREMENT_FETCH = 'increment outstanding fetches'
 export const DECREMENT_FETCH = 'decrement outstanding fetches'
 export const FETCH = 'fetch'
 export const FETCH_MULTIPLE = 'fetch multiple'
 export const FETCH_ERROR = 'fetch error'
 
+// Simple action creator
 const createAction = (type) => (payload) => ({type, payload})
 
-export const incrementFetches = createAction(INCREMENT_FETCH)
-export const decrementFetches = createAction(DECREMENT_FETCH)
+// Actions ready for a payload
+export const cancelledFetch = createAction(CANCELLED_FETCH)
 export const fetchAction = createAction(FETCH)
 export const fetchMultiple = createAction(FETCH_MULTIPLE)
 export const fetchError = createAction(FETCH_ERROR)
 
+// Call decrement and dispatch "cancelled" and "decrement" actions
+export const cancelFetch = (_id) => [
+  cancelledFetch(_id),
+  decrementFetches(_id)
+]
+
+// Cancel all active fetches
+export const cancelAllFetches = () => [
+  ...activeFetches.map(_id => cancelledFetch(_id)),
+  ...activeFetches.map(_id => decrementFetches(_id))
+]
+
+// Send an increment action and add the _id to active
+export const incrementFetches = (payload) => {
+  activeFetches.push(payload._id)
+
+  return {
+    type: INCREMENT_FETCH,
+    payload
+  }
+}
+
+// Send a decrement action and remove the _id from active
+export const decrementFetches = (_id) => {
+  removeFetch(_id)
+
+  return {
+    type: DECREMENT_FETCH,
+    payload: _id
+  }
+}
+
+// Redux middleware
 export function middleware (store) {
   return (next) => (action) => {
     if (action.type === FETCH) {
-      return store.dispatch(runFetchAction(action.payload, store.getState()))
+      return store.dispatch(runFetchAction(action.payload, store))
     } else if (action.type === FETCH_MULTIPLE) {
-      return store.dispatch(runFetchMultiple(action.payload, store.getState()))
+      return store.dispatch(runFetchMultiple(action.payload, store))
     } else {
       return next(action)
     }
@@ -39,6 +92,7 @@ export default fetchAction
  * @returns Promise
  */
 export function runFetch ({
+  _id,
   options = {},
   retry = false,
   url
@@ -66,47 +120,59 @@ export function runFetch ({
     .then(checkStatus)
     .then(createResponse)
     .then(async (response) =>
-      (retry && await retry(response))
-        ? runFetch({options, retry, url}, state)
+      (retry && isActive(_id) && await retry(response))
+        ? runFetch({_id, options, retry, url}, state)
         : response)
 }
 
+/**
+ * Part of Redux action cycle. Returns an array of actions.
+ */
 export function runFetchAction ({
+  _id = getID(),
   next,
   options = {},
   retry = false,
   url
 }, state) {
+  // If next does not exist or only takes a response, dispatch on error automatically
   const dispatchFetchError = !next || next.length < 2
+
+  // Wrap next so that we can parse the response
   const wrappedNext = wrapNext(next)
 
   return [
-    incrementFetches({options, url}),
-    runFetch({options, retry, url}, state)
+    incrementFetches({_id, options, url}),
+    runFetch({_id, options, retry, url}, state)
       .then((response) => {
-        return [
-          decrementFetches({options, url}),
-          wrappedNext(null, response)
-        ]
+        if (isActive(_id)) {
+          return [
+            decrementFetches(_id),
+            wrappedNext(null, response)
+          ]
+        }
       })
       .catch((error) => {
         return createErrorResponse(error)
           .then((response) => {
-            const actions = [
-              decrementFetches({options, url}),
-              wrappedNext(error, response)
-            ]
-            if (dispatchFetchError) actions.push(fetchError(response))
-            return actions
+            if (isActive(_id)) {
+              const actions = [
+                decrementFetches(_id),
+                wrappedNext(error, response)
+              ]
+              if (dispatchFetchError) actions.push(fetchError(response))
+              return actions
+            }
           })
       })
   ]
 }
 
 /**
- * @returns Promise
+ * @returns Array of actions
  */
 export function runFetchMultiple ({
+  _id = getID(), // One ID for all fetch IDs in a fetch multiple
   fetches,
   next
 }, state) {
@@ -114,19 +180,27 @@ export function runFetchMultiple ({
   const wrappedNext = wrapNext(next)
 
   return [
-    ...fetches.map(({options, url}) => incrementFetches({options, url})),
-    Promise.all(fetches.map((fetch) => runFetch(fetch, state)))
-      .then((responses) => [
-        ...fetches.map(({options, url}) => decrementFetches({options, url})),
-        wrappedNext(null, responses)
-      ])
+    incrementFetches({_id, fetches}),
+    Promise.all(fetches.map((fetch) => runFetch({...fetch, _id}, state)))
+      .then((responses) => {
+        if (isActive(_id)) {
+          return [
+            decrementFetches(_id),
+            wrappedNext(null, responses)
+          ]
+        }
+      })
       .catch((error) =>
         createErrorResponse(error)
           .then((response) => {
-            const actions = fetches.map(({options, url}) =>
-              decrementFetches({options, url}))
-            if (dispatchFetchError) actions.push(fetchError(response))
-            return [...actions, wrappedNext(error, response)]
+            if (isActive(_id)) {
+              const actions = [
+                decrementFetches(_id),
+                wrappedNext(error, response)
+              ]
+              if (dispatchFetchError) actions.push(fetchError(response))
+              return actions
+            }
           }))
   ]
 }

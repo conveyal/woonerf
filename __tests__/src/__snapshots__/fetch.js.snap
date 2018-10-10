@@ -4,16 +4,14 @@ exports[`fetch should not dispatch a fetchError if the arity of \`next\` is >= 2
 Array [
   Object {
     "payload": Object {
+      "_id": 9,
       "options": Object {},
       "url": "http://fakeurl.com",
     },
     "type": "increment outstanding fetches",
   },
   Object {
-    "payload": Object {
-      "options": Object {},
-      "url": "http://fakeurl.com",
-    },
+    "payload": 9,
     "type": "decrement outstanding fetches",
   },
 ]
