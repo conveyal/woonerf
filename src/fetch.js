@@ -74,9 +74,9 @@ export const decrementFetches = (_id) => {
 export function middleware (store) {
   return (next) => (action) => {
     if (action.type === FETCH) {
-      return store.dispatch(runFetchAction(action.payload, store))
+      return store.dispatch(runFetchAction(action.payload, store.getState()))
     } else if (action.type === FETCH_MULTIPLE) {
-      return store.dispatch(runFetchMultiple(action.payload, store))
+      return store.dispatch(runFetchMultiple(action.payload, store.getState()))
     } else {
       return next(action)
     }
