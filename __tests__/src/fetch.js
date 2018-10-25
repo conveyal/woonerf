@@ -230,7 +230,7 @@ describe('fetch', () => {
     }, 100)
   })
 
-  describe.only('abort', () => {
+  describe('abort', () => {
     it('should not call next on a aborted fetch', (done) => {
       const _id = getID()
       const store = createStore()
