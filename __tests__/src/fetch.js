@@ -1,7 +1,13 @@
 // @flow
 import nock from 'nock'
 
-import fetch, {fetchMultiple} from '../../src/fetch'
+import fetch, {
+  abortFetch,
+  ABORT_FETCH_FAILED,
+  ABORTED_FETCH,
+  fetchMultiple,
+  getID
+} from '../../src/fetch'
 import createStore from '../../src/store'
 
 const URL = 'http://fakeurl.com'
@@ -222,5 +228,63 @@ describe('fetch', () => {
       expect(store.getActions()).toMatchSnapshot() // no fetch error action
       done()
     }, 100)
+  })
+
+  describe.only('abort', () => {
+    it('should not call next on a aborted fetch', (done) => {
+      const _id = getID()
+      const store = createStore()
+
+      nock(URL)
+        .get('/')
+        .delay(1)
+        .reply(200, 'Done')
+
+      const action = fetch({
+        _id,
+        url: URL,
+        next: () => done('Should not be called')
+      })
+
+      store.dispatch(action)
+      store.dispatch(abortFetch(_id))
+
+      setTimeout(() => {
+        expect(store.getActions()).toContainEqual({
+          type: ABORTED_FETCH,
+          payload: _id
+        })
+        done()
+      }, 2)
+    })
+
+    it('should call next if fetch finishes before abort', (done) => {
+      const _id = getID()
+      const store = createStore()
+
+      nock(URL)
+        .get('/')
+        .delay(1)
+        .reply(200, 'done')
+
+      const next = jest.fn()
+      store.dispatch(fetch({
+        _id,
+        url: URL,
+        next: () => {
+          next()
+        }
+      }))
+
+      setTimeout(() => {
+        store.dispatch(abortFetch(_id))
+        expect(store.getActions()).toContainEqual({
+          type: ABORT_FETCH_FAILED,
+          payload: _id
+        })
+        expect(next).toHaveBeenCalled()
+        done()
+      }, 2)
+    })
   })
 })

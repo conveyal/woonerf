@@ -1,4 +1,5 @@
 // @flow
+import get from 'lodash/get'
 import isObject from 'lodash/isObject'
 if (typeof (fetch) === 'undefined') {
   require('isomorphic-fetch')
@@ -7,22 +8,24 @@ if (typeof (fetch) === 'undefined') {
 // ID that gets incremented for each fetch
 let FETCH_ID = 0
 
-// Get's the next fetch ID, which can be passed in to `fetch`, and allows for tracking the fetch or cancelling it.
+// Get's the next fetch ID, which can be passed in to `fetch`, and allows for
+// tracking the fetch or aborting it.
 export const getID = () => ++FETCH_ID
 
-// Active fetches, can still be cancelled
+// Active fetches, can still be aborted
 const activeFetches = []
 
 // Remove a fetch from the active array
-const removeFetch = (_id) => {
+const removeFetch = (_id) =>
   activeFetches.splice(activeFetches.indexOf(_id), 1)
-}
 
 // Check if a fetch is still active
-const isActive = (_id) => activeFetches.includes(_id)
+const isActive = (_id) =>
+  activeFetches.includes(_id)
 
 // Action types
-export const CANCELLED_FETCH = 'cancelled fetch'
+export const ABORTED_FETCH = 'aborted fetch'
+export const ABORT_FETCH_FAILED = 'abort fetch failed'
 export const INCREMENT_FETCH = 'increment outstanding fetches'
 export const DECREMENT_FETCH = 'decrement outstanding fetches'
 export const FETCH = 'fetch'
@@ -33,22 +36,27 @@ export const FETCH_ERROR = 'fetch error'
 const createAction = (type) => (payload) => ({type, payload})
 
 // Actions ready for a payload
-export const cancelledFetch = createAction(CANCELLED_FETCH)
+export const abortedFetch = createAction(ABORTED_FETCH)
+export const abortFetchFailed = createAction(ABORT_FETCH_FAILED)
 export const fetchAction = createAction(FETCH)
 export const fetchMultiple = createAction(FETCH_MULTIPLE)
 export const fetchError = createAction(FETCH_ERROR)
 
-// Call decrement and dispatch "cancelled" and "decrement" actions
-export const cancelFetch = (_id) => [
-  cancelledFetch(_id),
-  decrementFetches(_id)
-]
+// Call decrement and dispatch "aborted" and "decrement" actions
+export const abortFetch = (_id) => {
+  if (isActive(_id)) {
+    return [
+      abortedFetch(_id),
+      decrementFetches(_id)
+    ]
+  } else {
+    return abortFetchFailed(_id)
+  }
+}
 
-// Cancel all active fetches
-export const cancelAllFetches = () => [
-  ...activeFetches.map(_id => cancelledFetch(_id)),
-  ...activeFetches.map(_id => decrementFetches(_id))
-]
+// Abort all active fetches
+export const abortAllFetches = () =>
+  activeFetches.map(_id => abortFetch(_id))
 
 // Send an increment action and add the _id to active
 export const incrementFetches = (payload) => {
@@ -71,15 +79,14 @@ export const decrementFetches = (_id) => {
 }
 
 // Redux middleware
-export function middleware (store) {
-  return (next) => (action) => {
-    if (action.type === FETCH) {
+export const middleware = (store) => (next) => (action) => {
+  switch (get(action, 'type')) {
+    case FETCH:
       return store.dispatch(runFetchAction(action.payload, store.getState()))
-    } else if (action.type === FETCH_MULTIPLE) {
+    case FETCH_MULTIPLE:
       return store.dispatch(runFetchMultiple(action.payload, store.getState()))
-    } else {
+    default:
       return next(action)
-    }
   }
 }
 
@@ -135,7 +142,7 @@ export function runFetchAction ({
   retry = false,
   url
 }, state) {
-  // If next does not exist or only takes a response, dispatch on error automatically
+  // If next does not exist or only takes a response, dispatch on error
   const dispatchFetchError = !next || next.length < 2
 
   // Wrap next so that we can parse the response
