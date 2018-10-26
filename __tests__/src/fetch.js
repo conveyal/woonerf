@@ -104,25 +104,25 @@ describe('fetch', () => {
   })
 
   it('should fetch multiple urls in one go', (done) => {
-    const store = createstore()
-    nock(url)
+    const store = createStore()
+    nock(URL)
       .get('/one')
       .reply(200, 'one', {'content-type': 'text/plain'})
 
-    nock(url)
+    nock(URL)
       .get('/two')
       .reply(200, 'two', {'content-type': 'text/plain'})
 
-    const action = fetchmultiple({
+    const action = fetchMultiple({
       fetches: [{
-        url: `${url}/one`
+        url: `${URL}/one`
       }, {
-        url: `${url}/two`
+        url: `${URL}/two`
       }],
       next: (error, responses) => {
-        expect(responses.length).tobe(2)
-        expect(responses[0].value).tobe('one')
-        expect(responses[1].value).tobe('two')
+        expect(responses.length).toBe(2)
+        expect(responses[0].value).toBe('one')
+        expect(responses[1].value).toBe('two')
         done(error)
       }
     })
