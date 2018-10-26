@@ -104,25 +104,25 @@ describe('fetch', () => {
   })
 
   it('should fetch multiple urls in one go', (done) => {
-    const store = createStore()
-    nock(URL)
+    const store = createstore()
+    nock(url)
       .get('/one')
-      .reply(200, 'one', {'Content-Type': 'text/plain'})
+      .reply(200, 'one', {'content-type': 'text/plain'})
 
-    nock(URL)
+    nock(url)
       .get('/two')
-      .reply(200, 'two', {'Content-Type': 'text/plain'})
+      .reply(200, 'two', {'content-type': 'text/plain'})
 
-    const action = fetchMultiple({
+    const action = fetchmultiple({
       fetches: [{
-        url: `${URL}/one`
+        url: `${url}/one`
       }, {
-        url: `${URL}/two`
+        url: `${url}/two`
       }],
       next: (error, responses) => {
-        expect(responses.length).toBe(2)
-        expect(responses[0].value).toBe('one')
-        expect(responses[1].value).toBe('two')
+        expect(responses.length).tobe(2)
+        expect(responses[0].value).tobe('one')
+        expect(responses[1].value).tobe('two')
         done(error)
       }
     })
@@ -228,7 +228,7 @@ describe('fetch', () => {
     setTimeout(() => {
       expect(store.getActions()).toMatchSnapshot() // no fetch error action
       done()
-    }, 100)
+    }, 10)
   })
 
   describe('abort', () => {
@@ -259,6 +259,51 @@ describe('fetch', () => {
         })
         done()
       }, 2)
+    })
+
+    it('should not call next on aborted fetchMultiple', (done) => {
+      const store = createStore()
+      nock(URL)
+        .get('/one')
+        .delay(1)
+        .reply(200)
+
+      nock(URL)
+        .get('/two')
+        .delay(1)
+        .reply(200)
+
+      const type = 'TEST'
+
+      store.dispatch(fetchMultiple({
+        type,
+        fetches: [{
+          url: `${URL}/one`
+        }, {
+          url: `${URL}/two`
+        }],
+        next: () => done('should not be called')
+      }))
+      store.dispatch(abortFetch({type}))
+      done()
+    })
+
+    it('should not pass an error on an aborted fetch', (done) => {
+      const store = createStore()
+      const type = 'TEST'
+      nock(URL)
+        .get('/')
+        .delay(1)
+        .replyWithError('ERROR')
+
+      store.dispatch(fetch({
+        url: URL,
+        type,
+        next: (error, response) => done('should not be called')
+      }))
+
+      store.dispatch(abortFetch({type}))
+      done()
     })
 
     it('should call next if fetch finishes before abort', (done) => {
