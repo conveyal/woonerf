@@ -5,6 +5,9 @@ if (typeof (fetch) === 'undefined') {
   require('isomorphic-fetch')
 }
 
+// Generic fetch type
+const GFT = '__FETCH__'
+
 // ID that gets incremented for each fetch
 let FETCH_ID = 0
 
@@ -13,15 +16,26 @@ let FETCH_ID = 0
 export const getID = () => ++FETCH_ID
 
 // Active fetches, can still be aborted
-const activeFetches = []
+const activeFetches = {
+  [GFT]: []
+}
 
-// Remove a fetch from the active array
-const removeFetch = (_id) =>
-  activeFetches.splice(activeFetches.indexOf(_id), 1)
+// Remove a fetch from the active pool
+const removeFetch = (sig) => {
+  if (sig.type === GFT) {
+    activeFetches[GFT].splice(activeFetches[GFT].indexOf(sig.id), 1)
+  } else {
+    delete activeFetches[sig.type]
+  }
+}
 
 // Check if a fetch is still active
-const isActive = (_id) =>
-  activeFetches.includes(_id)
+const isActive = (sig) => {
+  if (sig.type === GFT) return activeFetches[GFT].includes(sig.id)
+  if (activeFetches[sig.type] === undefined) return false
+  if (sig.id === undefined) return true
+  return activeFetches[sig.type] === sig.id
+}
 
 // Action types
 export const ABORTED_FETCH = 'aborted fetch'
@@ -42,39 +56,65 @@ export const fetchAction = createAction(FETCH)
 export const fetchMultiple = createAction(FETCH_MULTIPLE)
 export const fetchError = createAction(FETCH_ERROR)
 
-// Call decrement and dispatch "aborted" and "decrement" actions
-export const abortFetch = (_id) => {
-  if (isActive(_id)) {
+/**
+ * Call decrement and dispatch "aborted" and "decrement" actions. If `id` is
+ * not set, cancel all fetches for the given type.
+ */
+export const abortFetch = (sig) => {
+  if (isActive(sig)) {
     return [
-      abortedFetch(_id),
-      decrementFetches(_id)
+      abortedFetch(sig),
+      decrementFetches(sig)
     ]
   } else {
-    return abortFetchFailed(_id)
+    return abortFetchFailed(sig)
   }
 }
 
 // Abort all active fetches
 export const abortAllFetches = () =>
-  activeFetches.map(_id => abortFetch(_id))
+  Object.keys(activeFetches).reduce((aborts, fetchType) => {
+    if (fetchType === GFT) {
+      return [
+        ...aborts,
+        ...activeFetches[GFT].map(id => abortFetch({type: GFT, id}))
+      ]
+    } else {
+      return [
+        ...aborts,
+        abortFetch({type: fetchType, id: activeFetches[fetchType]})
+      ]
+    }
+  }, [])
 
-// Send an increment action and add the _id to active
+// Send an increment action and add the id to active
 export const incrementFetches = (payload) => {
-  activeFetches.push(payload._id)
-
-  return {
+  const actions = [{
     type: INCREMENT_FETCH,
     payload
+  }]
+
+  if (payload.type === GFT) activeFetches[GFT].push(payload.id)
+  else {
+    if (activeFetches[payload.type] !== undefined) {
+      actions.push(abortFetch({
+        type: payload.type,
+        id: activeFetches[payload.type]
+      }))
+    }
+    activeFetches[payload.type] = payload.id
   }
+
+  return actions
 }
 
-// Send a decrement action and remove the _id from active
-export const decrementFetches = (_id) => {
-  removeFetch(_id)
+// Send a decrement action and remove the id from active
+export const decrementFetches = (signature) => {
+  removeFetch(signature)
 
   return {
     type: DECREMENT_FETCH,
-    payload: _id
+    payload: signature
   }
 }
 
@@ -99,7 +139,7 @@ export default fetchAction
  * @returns Promise
  */
 export function runFetch ({
-  _id,
+  signature,
   options = {},
   retry = false,
   url
@@ -127,8 +167,8 @@ export function runFetch ({
     .then(checkStatus)
     .then(createResponse)
     .then(async (response) =>
-      (retry && isActive(_id) && await retry(response))
-        ? runFetch({_id, options, retry, url}, state)
+      (retry && isActive(signature) && await retry(response))
+        ? runFetch({signature, options, retry, url}, state)
         : response)
 }
 
@@ -136,12 +176,16 @@ export function runFetch ({
  * Part of Redux action cycle. Returns an array of actions.
  */
 export function runFetchAction ({
-  _id = getID(),
+  type = GFT,
+  id = getID(),
   next,
   options = {},
   retry = false,
   url
 }, state) {
+  // Fetch signature based on the `type` and `id`
+  const signature = {type, id}
+
   // If next does not exist or only takes a response, dispatch on error
   const dispatchFetchError = !next || next.length < 2
 
@@ -149,12 +193,12 @@ export function runFetchAction ({
   const wrappedNext = wrapNext(next)
 
   return [
-    incrementFetches({_id, options, url}),
-    runFetch({_id, options, retry, url}, state)
+    incrementFetches({type, id, options, url}),
+    runFetch({signature, options, retry, url}, state)
       .then((response) => {
-        if (isActive(_id)) {
+        if (isActive(signature)) {
           return [
-            decrementFetches(_id),
+            decrementFetches(signature),
             wrappedNext(null, response)
           ]
         }
@@ -162,9 +206,9 @@ export function runFetchAction ({
       .catch((error) => {
         return createErrorResponse(error)
           .then((response) => {
-            if (isActive(_id)) {
+            if (isActive(signature)) {
               const actions = [
-                decrementFetches(_id),
+                decrementFetches(signature),
                 wrappedNext(error, response)
               ]
               if (dispatchFetchError) actions.push(fetchError(response))
@@ -179,20 +223,22 @@ export function runFetchAction ({
  * @returns Array of actions
  */
 export function runFetchMultiple ({
-  _id = getID(), // One ID for all fetch IDs in a fetch multiple
+  type = GFT,
+  id = getID(), // One ID for all fetch IDs in a fetch multiple
   fetches,
   next
 }, state) {
+  const signature = {type, id}
   const dispatchFetchError = !next || next.length < 2
   const wrappedNext = wrapNext(next)
 
   return [
-    incrementFetches({_id, fetches}),
-    Promise.all(fetches.map((fetch) => runFetch({...fetch, _id}, state)))
+    incrementFetches({type, id, fetches}),
+    Promise.all(fetches.map((fetch) => runFetch({...fetch, signature}, state)))
       .then((responses) => {
-        if (isActive(_id)) {
+        if (isActive(signature)) {
           return [
-            decrementFetches(_id),
+            decrementFetches(signature),
             wrappedNext(null, responses)
           ]
         }
@@ -200,9 +246,9 @@ export function runFetchMultiple ({
       .catch((error) =>
         createErrorResponse(error)
           .then((response) => {
-            if (isActive(_id)) {
+            if (isActive(signature)) {
               const actions = [
-                decrementFetches(_id),
+                decrementFetches(signature),
                 wrappedNext(error, response)
               ]
               if (dispatchFetchError) actions.push(fetchError(response))
@@ -212,6 +258,9 @@ export function runFetchMultiple ({
   ]
 }
 
+/**
+ * TODO: Expose this function to allow for customization.
+ */
 function createAuthorizationHeader (state) {
   return state.user && state.user.idToken
     ? {Authorization: `bearer ${state.user.idToken}`}

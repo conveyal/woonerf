@@ -2,6 +2,7 @@
 import nock from 'nock'
 
 import fetch, {
+  abortAllFetches,
   abortFetch,
   ABORT_FETCH_FAILED,
   ABORTED_FETCH,
@@ -232,7 +233,8 @@ describe('fetch', () => {
 
   describe('abort', () => {
     it('should not call next on a aborted fetch', (done) => {
-      const _id = getID()
+      const type = 'TEST'
+      const id = getID()
       const store = createStore()
 
       nock(URL)
@@ -241,35 +243,37 @@ describe('fetch', () => {
         .reply(200, 'Done')
 
       const action = fetch({
-        _id,
+        type,
+        id,
         url: URL,
         next: () => done('Should not be called')
       })
 
       store.dispatch(action)
-      store.dispatch(abortFetch(_id))
+      store.dispatch(abortFetch({type, id}))
 
       setTimeout(() => {
         expect(store.getActions()).toContainEqual({
           type: ABORTED_FETCH,
-          payload: _id
+          payload: {type, id}
         })
         done()
       }, 2)
     })
 
     it('should call next if fetch finishes before abort', (done) => {
-      const _id = getID()
+      const type = 'TEST'
+      const id = getID()
       const store = createStore()
 
       nock(URL)
         .get('/')
-        .delay(1)
         .reply(200, 'done')
 
       const next = jest.fn()
       store.dispatch(fetch({
-        _id,
+        id,
+        type,
         url: URL,
         next: () => {
           next()
@@ -277,14 +281,70 @@ describe('fetch', () => {
       }))
 
       setTimeout(() => {
-        store.dispatch(abortFetch(_id))
+        store.dispatch(abortFetch({type, id}))
         expect(store.getActions()).toContainEqual({
           type: ABORT_FETCH_FAILED,
-          payload: _id
+          payload: {type, id}
         })
         expect(next).toHaveBeenCalled()
         done()
       }, 2)
+    })
+
+    it('should cancel all active fetches of any type', (done) => {
+      const store = createStore()
+
+      nock(URL)
+        .get('/')
+        .delay(1)
+        .reply(200, 'done')
+
+      const fetchNum = 10
+      for (let i = 0; i < fetchNum; i++) {
+        store.dispatch(fetch({
+          type: `test-${i}`,
+          url: URL,
+          next: () => done('should not be called')
+        }))
+      }
+
+      store.dispatch(abortAllFetches())
+      expect(store.getActions()).toHaveLength(fetchNum * 3)
+      done()
+    })
+
+    it('should abort active fetches of the same type', (done) => {
+      const store = createStore()
+      const type = 'TEST'
+      const fetchNum = 10
+      const ids = []
+
+      for (let i = 0; i < fetchNum; i++) {
+        nock(URL)
+          .get(`/item/${i}`)
+          .delay(1)
+          .reply(200, 'done')
+
+        const id = getID()
+        ids.push(id)
+
+        store.dispatch(fetch({
+          type,
+          id,
+          url: `${URL}/item/${i}`,
+          next: () => {
+            // should be called once
+            done()
+          }
+        }))
+      }
+
+      for (let i = 0; i < (fetchNum - 1); i++) {
+        expect(store.getActions()).toContainEqual({
+          type: ABORTED_FETCH,
+          payload: {type, id: ids[i]}
+        })
+      }
     })
   })
 })
