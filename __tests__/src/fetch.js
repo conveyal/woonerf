@@ -6,6 +6,7 @@ import fetch, {
   abortFetch,
   ABORT_FETCH_FAILED,
   ABORTED_FETCH,
+  FETCH_ERROR,
   fetchMultiple,
   getID
 } from '../../src/fetch'
@@ -229,6 +230,49 @@ describe('fetch', () => {
       expect(store.getActions()).toMatchSnapshot() // no fetch error action
       done()
     }, 10)
+  })
+
+  it('should dispatch a fetchError when any of the urls in fetchMultiple fail', (done) => {
+    const store = createStore()
+    nock(URL).get('/error').reply(400, 'ERROR')
+    nock(URL).get('/fine').reply(200)
+
+    const actionResult = store.dispatch(fetchMultiple({
+      fetches: [{
+        url: `${URL}/error`
+      }, {
+        url: `${URL}/fine`
+      }],
+      next: () => done('should not be called')
+    }))
+    Promise.resolve(actionResult[1])
+
+    setTimeout(() => {
+      expect(store.getActions()[2].type).toBe(FETCH_ERROR)
+      done()
+    }, 1)
+  })
+
+  it('should not dispatch a fetchError one of the urls in fetchMultiple fail and arity on next is > 1', (done) => {
+    const store = createStore()
+    nock(URL).get('/error').reply(400, 'ERROR')
+    nock(URL).get('/fine').reply(200)
+
+    const actionResult = store.dispatch(fetchMultiple({
+      fetches: [{
+        url: `${URL}/error`
+      }, {
+        url: `${URL}/fine`
+      }],
+      next: (error, response) => {
+        if (!error) {
+          done('Error should exist')
+        } else {
+          done()
+        }
+      }
+    }))
+    Promise.resolve(actionResult[1])
   })
 
   describe('abort', () => {
