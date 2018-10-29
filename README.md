@@ -87,7 +87,7 @@ function mapDispatchToProps (dispatch) {
 
 ### fetch
 
-`fetch({url, options, next, retry})`
+`fetch({url, options, next, retry, type, id})`
 
 Create a fetch action to be dispatched by the store. Key features:
 
@@ -97,6 +97,8 @@ Create a fetch action to be dispatched by the store. Key features:
 * `Authorization`, `Content-Type` and `Accept` headers are added automatically (if you want to make a request
    without one of these headers, for instance suppressing the Authorization header when calling a
    remote service, simply set it to null in the `headers` field of `options`).
+* `type` is a string that can designate a category of fetches that will only run one at a time.
+* `id` can be used to later abort the specific fetch by dispatching an `abortFetch` action.
 
 #### fetch errors
 
@@ -127,6 +129,23 @@ store.dispatch(fetch({
     return actionBasedOn(response)
   }
 }))
+```
+
+#### abort fetch
+
+Abort a fetch by dispatching `abortFetch({type, id})`.
+
+```js
+const fetch, {abortFetch, getID} = require('@conveyal/woonerf/fetch')
+const id = getID()
+store.dispatch(fetch({
+  url: 'http://conveyal.com',
+  id,
+  next: () => {
+    throw new Error('Will not be called')
+  }
+}))
+store.dispatch(fetch(abortFetch({id})))
 ```
 
 ### fetchMultiple
