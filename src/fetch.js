@@ -30,7 +30,7 @@ const removeFetch = (sig) => {
 }
 
 // Check if a fetch is still active
-const isActive = (sig) => {
+export const isActive = (sig) => {
   if (sig.type === GFT) return activeFetches[GFT].includes(sig.id)
   if (activeFetches[sig.type] === undefined) return false
   if (sig.id === undefined) return true
@@ -49,12 +49,15 @@ export const FETCH_ERROR = 'fetch error'
 // Simple action creator
 const createAction = (type) => (payload) => ({type, payload})
 
-// Actions ready for a payload
-export const abortedFetch = createAction(ABORTED_FETCH)
-export const abortFetchFailed = createAction(ABORT_FETCH_FAILED)
+// Main actions to be dispatched
 export const fetchAction = createAction(FETCH)
 export const fetchMultiple = createAction(FETCH_MULTIPLE)
-export const fetchError = createAction(FETCH_ERROR)
+export default fetchAction
+
+// Internally dispatched actions
+const abortedFetch = createAction(ABORTED_FETCH)
+const abortFetchFailed = createAction(ABORT_FETCH_FAILED)
+const fetchError = createAction(FETCH_ERROR)
 
 /**
  * Call decrement and dispatch "aborted" and "decrement" actions. If `id` is
@@ -87,8 +90,11 @@ export const abortAllFetches = () =>
     }
   }, [])
 
-// Send an increment action and add the id to active
-export const incrementFetches = (payload) => {
+/**
+ * Send an increment action and add the fetch to the active list. This will also
+ * abort a previous fetch of the same type if it exists.
+ */
+const incrementFetches = (payload) => {
   const actions = [{
     type: INCREMENT_FETCH,
     payload
@@ -108,8 +114,10 @@ export const incrementFetches = (payload) => {
   return actions
 }
 
-// Send a decrement action and remove the id from active
-export const decrementFetches = (signature) => {
+/**
+ * Send a decrement action and remove the fetch from the active list.
+ */
+const decrementFetches = (signature) => {
   removeFetch(signature)
 
   return {
@@ -130,15 +138,13 @@ export const middleware = (store) => (next) => (action) => {
   }
 }
 
-export default fetchAction
-
 /**
  * Calls fetch, adds Auth and Content header if needed. Automatically parses
  * content based on type.
  *
  * @returns Promise
  */
-export function runFetch ({
+function runFetch ({
   signature,
   options = {},
   retry = false,
@@ -175,7 +181,7 @@ export function runFetch ({
 /**
  * Part of Redux action cycle. Returns an array of actions.
  */
-export function runFetchAction ({
+function runFetchAction ({
   type = GFT,
   id = getID(),
   next,
@@ -222,7 +228,7 @@ export function runFetchAction ({
 /**
  * @returns Array of actions
  */
-export function runFetchMultiple ({
+function runFetchMultiple ({
   type = GFT,
   id = getID(), // One ID for all fetch IDs in a fetch multiple
   fetches,

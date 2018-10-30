@@ -145,7 +145,7 @@ store.dispatch(fetch({
     throw new Error('Will not be called')
   }
 }))
-store.dispatch(fetch(abortFetch({id})))
+store.dispatch(abortFetch({id}))
 ```
 
 ### fetchMultiple
