@@ -1,7 +1,15 @@
 // @flow
 import nock from 'nock'
 
-import fetch, {fetchMultiple} from '../../src/fetch'
+import fetch, {
+  abortAllFetches,
+  abortFetch,
+  ABORT_FETCH_FAILED,
+  ABORTED_FETCH,
+  FETCH_ERROR,
+  fetchMultiple,
+  getID
+} from '../../src/fetch'
 import createStore from '../../src/store'
 
 const URL = 'http://fakeurl.com'
@@ -100,11 +108,11 @@ describe('fetch', () => {
     const store = createStore()
     nock(URL)
       .get('/one')
-      .reply(200, 'one', {'Content-Type': 'text/plain'})
+      .reply(200, 'one', {'content-type': 'text/plain'})
 
     nock(URL)
       .get('/two')
-      .reply(200, 'two', {'Content-Type': 'text/plain'})
+      .reply(200, 'two', {'content-type': 'text/plain'})
 
     const action = fetchMultiple({
       fetches: [{
@@ -221,6 +229,211 @@ describe('fetch', () => {
     setTimeout(() => {
       expect(store.getActions()).toMatchSnapshot() // no fetch error action
       done()
-    }, 100)
+    }, 10)
+  })
+
+  it('should dispatch a fetchError when any of the urls in fetchMultiple fail', (done) => {
+    const store = createStore()
+    nock(URL).get('/error').reply(400, 'ERROR')
+    nock(URL).get('/fine').reply(200)
+
+    const actionResult = store.dispatch(fetchMultiple({
+      fetches: [{
+        url: `${URL}/error`
+      }, {
+        url: `${URL}/fine`
+      }],
+      next: () => done('should not be called')
+    }))
+    Promise.resolve(actionResult[1])
+
+    setTimeout(() => {
+      expect(store.getActions()[2].type).toBe(FETCH_ERROR)
+      done()
+    }, 1)
+  })
+
+  it('should not dispatch a fetchError one of the urls in fetchMultiple fail and arity on next is > 1', (done) => {
+    const store = createStore()
+    nock(URL).get('/error').reply(400, 'ERROR')
+    nock(URL).get('/fine').reply(200)
+
+    const actionResult = store.dispatch(fetchMultiple({
+      fetches: [{
+        url: `${URL}/error`
+      }, {
+        url: `${URL}/fine`
+      }],
+      next: (error, response) => {
+        if (!error) {
+          done('Error should exist')
+        } else {
+          done()
+        }
+      }
+    }))
+    Promise.resolve(actionResult[1])
+  })
+
+  describe('abort', () => {
+    it('should not call next on a aborted fetch', (done) => {
+      const type = 'TEST'
+      const id = getID()
+      const store = createStore()
+
+      nock(URL)
+        .get('/')
+        .delay(1)
+        .reply(200, 'Done')
+
+      const action = fetch({
+        type,
+        id,
+        url: URL,
+        next: () => done('Should not be called')
+      })
+
+      store.dispatch(action)
+      store.dispatch(abortFetch({type, id}))
+
+      setTimeout(() => {
+        expect(store.getActions()).toContainEqual({
+          type: ABORTED_FETCH,
+          payload: {type, id}
+        })
+        done()
+      }, 2)
+    })
+
+    it('should not call next on aborted fetchMultiple', (done) => {
+      const store = createStore()
+      nock(URL)
+        .get('/one')
+        .delay(1)
+        .reply(200)
+
+      nock(URL)
+        .get('/two')
+        .delay(1)
+        .reply(200)
+
+      const type = 'TEST'
+
+      store.dispatch(fetchMultiple({
+        type,
+        fetches: [{
+          url: `${URL}/one`
+        }, {
+          url: `${URL}/two`
+        }],
+        next: () => done('should not be called')
+      }))
+      store.dispatch(abortFetch({type}))
+      done()
+    })
+
+    it('should not pass an error on an aborted fetch', (done) => {
+      const store = createStore()
+      const type = 'TEST'
+      nock(URL)
+        .get('/')
+        .delay(1)
+        .replyWithError('ERROR')
+
+      store.dispatch(fetch({
+        url: URL,
+        type,
+        next: (error, response) => done('should not be called')
+      }))
+
+      store.dispatch(abortFetch({type}))
+      done()
+    })
+
+    it('should call next if fetch finishes before abort', (done) => {
+      const type = 'TEST'
+      const id = getID()
+      const store = createStore()
+
+      nock(URL)
+        .get('/')
+        .reply(200, 'done')
+
+      const next = jest.fn()
+      store.dispatch(fetch({
+        id,
+        type,
+        url: URL,
+        next: () => {
+          next()
+        }
+      }))
+
+      setTimeout(() => {
+        store.dispatch(abortFetch({type, id}))
+        expect(store.getActions()).toContainEqual({
+          type: ABORT_FETCH_FAILED,
+          payload: {type, id}
+        })
+        expect(next).toHaveBeenCalled()
+        done()
+      }, 2)
+    })
+
+    it('should cancel all active fetches of any type', (done) => {
+      const store = createStore()
+
+      nock(URL)
+        .get('/')
+        .delay(1)
+        .reply(200, 'done')
+
+      const fetchNum = 10
+      for (let i = 0; i < fetchNum; i++) {
+        store.dispatch(fetch({
+          type: `test-${i}`,
+          url: URL,
+          next: () => done('should not be called')
+        }))
+      }
+
+      store.dispatch(abortAllFetches())
+      expect(store.getActions()).toHaveLength(fetchNum * 3)
+      done()
+    })
+
+    it('should abort active fetches of the same type', (done) => {
+      const store = createStore()
+      const type = 'TEST'
+      const fetchNum = 10
+      const ids = []
+
+      for (let i = 0; i < fetchNum; i++) {
+        nock(URL)
+          .get(`/item/${i}`)
+          .delay(1)
+          .reply(200, 'done')
+
+        const id = getID()
+        ids.push(id)
+
+        store.dispatch(fetch({
+          type,
+          id,
+          url: `${URL}/item/${i}`,
+          next: () => {
+            // should be called once
+            done()
+          }
+        }))
+      }
+
+      for (let i = 0; i < (fetchNum - 1); i++) {
+        expect(store.getActions()).toContainEqual({
+          type: ABORTED_FETCH,
+          payload: {type, id: ids[i]}
+        })
+      }
+    })
   })
 })

@@ -2,9 +2,6 @@
   "name": "@conveyal/woonerf",
   "description": "React/Redux bootstrapping and common libs for Conveyal",
   "main": "index.js",
-  "engines": {
-    "node": ">=8"
-  },
   "repository": {
     "url": "https://github.com/conveyal/woonerf",
     "type": "git"
