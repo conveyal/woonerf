@@ -1,8 +1,5 @@
 // @flow
-import debug from 'debug'
 import get from 'lodash/get'
-
-const dbg = debug('woonerf:message')
 
 /**
  * Expose a Set of all the keys used
@@ -39,7 +36,6 @@ export default function getMessage (key: string, defaultMessage?: string | Objec
   // Get the message with "lodash/get" to allow nested keys ('noun.action' => {noun: {action: 'value'}})
   const msg = get(messages, key, defaultMessage)
   const result = parameters ? replaceMessage(msg, parameters) : msg
-  dbg(key, result)
   return result
 }
 
