@@ -1,6 +1,6 @@
 import {browserHistory} from 'react-router'
 import {routerMiddleware} from 'react-router-redux'
-import {applyMiddleware, createStore} from 'redux'
+import {applyMiddleware, compose, createStore} from 'redux'
 import {createLogger} from 'redux-logger'
 import thunkMiddleware from 'redux-thunk'
 
@@ -27,12 +27,12 @@ if (process.env.LOGROCKET) {
   const LogRocket = require('logrocket')
   middlewares.push(LogRocket.reduxMiddleware())
 }
-
+// Use Redux Dev Tools to compose enhancers if available.
+const composeEnhancers = window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ || compose
 export default function configureStore (rootReducer, initialState) {
   return createStore(
     rootReducer,
     initialState,
-    applyMiddleware(...middlewares),
-    window.__REDUX_DEVTOOLS_EXTENSION__ && window.__REDUX_DEVTOOLS_EXTENSION__()
+    composeEnhancers(applyMiddleware(...middlewares))
   )
 }
