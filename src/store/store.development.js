@@ -32,6 +32,7 @@ export default function configureStore (rootReducer, initialState) {
   return createStore(
     rootReducer,
     initialState,
-    applyMiddleware(...middlewares)
+    applyMiddleware(...middlewares),
+    window.__REDUX_DEVTOOLS_EXTENSION__ && window.__REDUX_DEVTOOLS_EXTENSION__()
   )
 }
